@@ -1,0 +1,50 @@
+@import "../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+
+// Misc
+@import "_variables";
+@import "_core";
+@import "_mixins";
+@import "_miscellaneous";
+
+// Components
+@import "components/header";
+@import "components/sidebar";
+@import "components/sidebar-mini";
+@import "components/control-sidebar";
+@import "components/dropdown";
+@import "components/forms";
+@import "components/progress-bars";
+@import "components/small-box";
+@import "components/boxes";
+@import "components/info-box";
+@import "components/timeline";
+@import "components/buttons";
+@import "components/callout";
+@import "components/alerts";
+@import "components/navs";
+@import "components/products";
+@import "components/table";
+@import "components/labels";
+@import "components/direct-chat";
+@import "components/users-list";
+@import "components/carousel";
+@import "components/modal";
+@import "components/social-widgets";
+
+// Pages
+@import "pages/mailbox";
+@import "pages/lockscreen";
+@import "pages/login_and_register";
+@import "pages/404_500_errors";
+@import "pages/invoice";
+@import "pages/profile";
+
+// Plugins
+@import "plugins/bootstrap-social";
+@import "plugins/fullcalendar";
+@import "plugins/select2";
+
+// Miscellaneous
+// @import "miscellaneous.less";
+@import "print";
+@import "skins/skin-black";
