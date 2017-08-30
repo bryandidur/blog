@@ -7,17 +7,23 @@ mix.options({
     uglify: {},
 });
 
-mix.scripts([
+mix.combine([
     // Vendor JavaScript
     'node_modules/jquery/dist/jquery.min.js',
     'node_modules/bootstrap-sass/assets/javascripts/bootstrap.min.js',
     'node_modules/angular/angular.min.js',
+    'node_modules/angular-route/angular-route.min.js',
+    'node_modules/angular-resource/angular-resource.min.js',
+    // 'node_modules/angular-ui-router/release/angular-ui-router.min.js',
 ], 'dist/assets/js/vendor.js');
 
 mix.scripts([
     // Application JavaScript
-    'src/js/layout/*.js',
-    // 'src/js/angular/[file].js',
+    'src/js/layout/app.js',
+    // 'src/js/layout/*.js',
+    // 'src/js/angular/app.helpers.js',
+    // 'src/js/angular/app.module.js',
+    // 'src/js/angular/app.config.js',
 ], 'dist/assets/js/app.js');
 
 mix.sass(
