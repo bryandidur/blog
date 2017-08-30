@@ -1,0 +1,58 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Usuários <small>Cadastro</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+        <li class="active">Here</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-info">
+            <div class="box-header with-border">
+                    <h3 class="box-title"><small>Todos os campos são obrigatórios.</small></h3>
+                </div><!-- /.box-header -->
+
+                <!-- form start -->
+                <form data-ng-submit="store($event)" action="#" method="POST" role="form">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label for="name">Nome</label>
+                            <input data-ng-model="user.name" id="name" class="form-control" type="text">
+
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <input data-ng-model="user.email" id="email" class="form-control" type="email">
+
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Senha <small>(Mínimo 6 caracteres)</small></label>
+                            <input data-ng-model="user.password" id="password" class="form-control" type="password">
+
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password-confirm">Confirmação da senha</label>
+                            <input data-ng-model="user.password_confirmation" id="password-confirm" class="form-control" type="password">
+
+                            <span class="help-block"></span>
+                        </div>
+                    </div><!-- /.box-body -->
+
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> Cadastrar</button>
+                    </div>
+                </form>
+            </div><!-- /.box -->
+        </div>
+    </div><!-- /.row -->
+</section><!-- /.content -->
