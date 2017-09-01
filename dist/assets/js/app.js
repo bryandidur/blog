@@ -820,3 +820,797 @@ window.layoutInit = function () {
         });
     }
 };
+
+'use strict';
+
+window.env = window.env || {};
+
+window.env.APP_NAME = 'Blog';
+window.env.APP_ENV = 'development';
+window.env.APP_URL = 'http://localhost:8080/';
+window.env.API_URL = 'http://localhost:8000/';
+
+'use strict';
+
+var log = function (args) {
+    var argsLength = arguments.length;
+    for (var i = 0; i < argsLength; i++) {
+        console.log(arguments[i]);
+    }
+};
+
+var view = function (viewName)
+{
+    return 'views/' + viewName;
+};
+
+var url = function (path)
+{
+    return env.APP_URL + path;
+};
+
+var api_url = function (path)
+{
+    return env.API_URL + path;
+};
+
+var notify = function (message, state, timeout)
+{
+    var title, states, timeout;
+    states = ['success', 'error', 'info', 'warning'];
+    state = (state && states.indexOf(state) > -1) ? state : 'success';
+    timeout = timeout ? parseInt(timeout) : 5000;
+
+    switch (state) {
+        case 'success': title = 'OK!'; break;
+        case 'error': title = 'Falha!'; break;
+        case 'info': title = 'Atenção!'; break;
+        case 'warning': title = 'Aviso!'; break;
+    }
+
+    toastr[state](message, title, {
+        escapeHtml: true,
+        newestOnTop: true,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        showDuration: "300",
+        hideDuration: "1000",
+        timeOut: timeout,
+    });
+};
+
+var show_messages = function (data, state, timeout) {
+    if ( data instanceof Object ) {
+        var i, key, msgs = '';
+
+        for (key in data) {
+            if ( data[key] instanceof Array ) {
+                for (i = 0; i < data[key].length; i++) {
+                    msgs += data[key][i] + '<br>';
+                }
+            } else {
+                msgs = data[key];
+            }
+        }
+
+        notify(msgs, state, timeout);
+    }
+};
+
+'use strict';
+
+var appModule = angular.module('app', ['ngMessages', 'ui.router', 'ui.router.state.events', 'validation', 'auth', 'root-dashboard', 'dashboard', 'users']);
+
+'use strict';
+
+appModule.config([
+    '$stateProvider', '$urlRouterProvider',
+    function ($stateProvider, $urlRouterProvider)
+    {
+        $urlRouterProvider.otherwise('/login');
+
+        var routeStates = {
+            'login': {
+                url: '/login',
+                templateUrl: view('login.html'),
+                controller: 'LoginController',
+            },
+            'forgot-password': {
+                url: '/reset',
+                templateUrl: view('forgot-password.html'),
+                controller: 'ForgotPasswordController',
+            },
+            'reset-password': {
+                url: '/reset/:token',
+                templateUrl: view('reset-password.html'),
+                controller: 'ResetPasswordController',
+            },
+            'root-dashboard': {
+                abstract: true,
+                templateUrl: view('root-dashboard.html'),
+                controller: 'RootDashboardController',
+            },
+            'dashboard': {
+                parent: 'root-dashboard',
+                url: '/dashboard',
+                templateUrl: view('dashboard.html'),
+                controller: 'DashboardController',
+            },
+            'users-list': {
+                parent: 'root-dashboard',
+                url: '/users',
+                templateUrl: view('users-list.html'),
+                controller: 'UsersListController',
+            },
+            'users-register': {
+                parent: 'root-dashboard',
+                url: '/users/register',
+                templateUrl: view('users-register.html'),
+                controller: 'UsersRegisterController',
+            },
+            'users-profile': {
+                parent: 'root-dashboard',
+                url: '/users/profile/:id',
+                templateUrl: view('users-profile.html'),
+                controller: 'UsersProfileController',
+            },
+        };
+
+        // Register routeStates
+        for (var state in routeStates) {
+            $stateProvider.state(state, routeStates[state]);
+        }
+    }
+]);
+
+'use strict';
+
+var validationModule = angular.module('validation', ['ngMessages']);
+
+'use strict';
+
+validationModule.directive('validateEmail', function ()
+{
+    var config = {
+        restrict: 'A',
+        require: '?ng-model',
+        link: function (scope, elem, attrs, ctrl)
+        {
+            // Only apply the validator if ngModel is present and AngularJS has added the email validator
+            if ( ctrl && ctrl.$validators.email ) {
+                var emailREGEXP = /^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/;
+
+                // This will overwrite the default AngularJS email validator
+                ctrl.$validators.email = function (modelValue) {
+                    return emailREGEXP.test(modelValue);
+                };
+            }
+        }
+    }
+
+    return config;
+});
+
+'use strict';
+
+validationModule.directive('validatePasswordConfirmation', function ()
+{
+    var config = {
+        restrict: 'A',
+        require: '?ng-model',
+        scope: {
+            passwordToCompare: "=validatePasswordConfirmation"
+        },
+        link: function(scope, elem, attrs, ctrl)
+        {
+            // Only apply the validator if ngModel is present
+            if ( ctrl ) {
+                ctrl.$validators.validatePasswordConfirmation = function (modelValue) {
+                    return modelValue == scope.passwordToCompare;
+                };
+
+                scope.$watch("passwordToCompare", function () {
+                    ctrl.$validate();
+                });
+            }
+        }
+    }
+
+    return config;
+});
+
+'use strict';
+
+var authModule = angular.module('auth', ['ngMessages', 'ui.router']);
+
+'use strict';
+
+authModule.config([
+    '$httpProvider',
+    function ($httpProvider)
+    {
+        $httpProvider.interceptors.push('RefreshAuthorizationHeaderService');
+    }
+]);
+
+'use strict';
+
+authModule.factory('RefreshAuthorizationHeaderService', [
+    '$q', '$injector',
+    function ($q, $injector)
+    {
+        var getRequestAccessToken = function () {
+            var AuthService = $injector.get('AuthService')
+            var accessToken = AuthService.getSessionData('access_token');
+
+            return accessToken;
+        };
+
+        var setRequestAccessToken = function (request, accessToken) {
+            request.headers.Authorization = accessToken;
+        };
+
+        var getResponseAccessToken = function (rejection) {
+            /// Get the refreshed access_token on Authorization header
+            var refreshedAccessToken = rejection.headers('Authorization');
+
+            return refreshedAccessToken;
+        };
+
+        var setResponseAccessToken = function (refreshedAccessToken) {
+            var AuthService = $injector.get('AuthService')
+
+            // Only update the session access_token if the request
+            // was sent to the api server and its returned an new access_token
+            if ( refreshedAccessToken ) {
+                AuthService.setSessionData('access_token', refreshedAccessToken)
+            }
+        };
+
+        this.request = function (request)
+        {
+            setRequestAccessToken(request, getRequestAccessToken());
+
+            return request;
+        };
+
+        this.response = function (response)
+        {
+            setResponseAccessToken(getResponseAccessToken(response));
+
+            return response;
+        };
+
+        this.responseError = function (rejection)
+        {
+            setResponseAccessToken(getResponseAccessToken(rejection));
+
+            return $q.reject(rejection);
+        };
+
+        return this;
+    }
+]);
+
+'use strict';
+
+authModule.service('AuthService', [
+    '$http',
+    function ($http)
+    {
+        var self = this;
+        var apiRequestUrl = api_url('auth');
+        var fillableSessionData = ['access_token', 'user', 'authenticated'];
+
+        this.getUser = function ()
+        {
+            return angular.fromJson(self.getSessionData('user'));
+        };
+
+        this.isAuthenticated = function () {
+            return self.getSessionData('authenticated') || false;
+        };
+
+        this.authenticate = function (credentials, callbacks)
+        {
+            var callbacks = callbacks || {};
+            var promises = {
+                success: function (response)
+                {
+                    self.succeededLogin(response, callbacks);
+                },
+                error: function (response)
+                {
+                    self.failedLogin(response, callbacks);
+                },
+            };
+
+            $http.post(apiRequestUrl, credentials).then(promises.success, promises.error);
+        }
+
+        this.succeededLogin = function (response, callbacks)
+        {
+            angular.extend(response.data, {authenticated: true});
+
+            self.setSessionData(response.data);
+
+            if ( callbacks.success ) callbacks.success(response);
+        }
+
+        this.failedLogin = function (response, callbacks)
+        {
+            self.clearSessionData();
+
+            if ( callbacks.error ) callbacks.error(response);
+        }
+
+        this.unAuthenticate = function (callbacks)
+        {
+            var callbacks = callbacks || {};
+            var promises = {
+                success: function (response)
+                {
+                    self.succeededLogout(response, callbacks);
+                },
+                error: function (response)
+                {
+                    self.failedLogout(response, callbacks);
+                }
+            };
+
+            $http.delete(apiRequestUrl).then(promises.success, promises.error);
+        }
+
+        this.succeededLogout = function (response, callbacks)
+        {
+            self.clearSessionData();
+
+            if ( callbacks.success ) callbacks.success(response);
+        }
+
+        this.failedLogout = function (response, callbacks)
+        {
+            self.clearSessionData();
+
+            if ( callbacks.error ) callbacks.error(response);
+        }
+
+
+        this.getSessionData = function (name)
+        {
+            if ( typeof name == 'undefined' ) {
+                var data = {};
+
+                fillableSessionData.forEach(function (value, key) {
+                    if ( localStorage.getItem(value) ) {
+                        data[value] = localStorage.getItem(value);
+                    }
+                });
+
+                return data;
+            }
+
+            if ( fillableSessionData.indexOf(name) > -1 ) {
+                return localStorage.getItem(name);
+            }
+
+            return null;
+        }
+
+        this.setSessionData = function (name, value)
+        {
+            var key, value, data = {};
+
+            if ( typeof name == 'object' ) {
+                for (key in name) {
+                    if ( fillableSessionData.indexOf(key) > -1 ) {
+                        data[key] = name[key];
+                        value = (typeof name[key] == 'object') ? angular.toJson(name[key]) :
+                           (key == 'access_token') ? 'Bearer ' + name[key] : name[key];
+
+                        localStorage.setItem(key, value);
+                    }
+                }
+
+                return data;
+            }
+
+            if ( fillableSessionData.indexOf(name) > -1 ) {
+                data[name] = value;
+
+                localStorage.setItem(name, value);
+
+                return data;
+            }
+
+            return null;
+        }
+
+        this.clearSessionData = function (name)
+        {
+            if ( fillableSessionData.indexOf(name) > -1 ) {
+                localStorage.removeItem(name);
+                return true;
+            }
+
+            fillableSessionData.forEach(function (value, key) {
+                localStorage.removeItem(value);
+            });
+        }
+    }
+]);
+
+'use strict';
+
+authModule.service('ForgotPasswordService', [
+    '$http',
+    function ($http)
+    {
+        var self = this;
+        var apiRequestUrl = api_url('auth/reset');
+
+        this.sendResetLinkEmail = function (email, callbacks)
+        {
+            var callbacks = callbacks || {};
+            var data = {email: email, route: url('#!/reset/{token}')};
+            var promises = {
+                success: function (response)
+                {
+                    //
+
+                    if ( callbacks.success ) callbacks.success(response);
+                },
+                error: function (response)
+                {
+                    //
+
+                    if ( callbacks.error ) callbacks.error(response);
+                }
+            };
+
+            $http.post(apiRequestUrl, data).then(promises.success, promises.error);
+        }
+    }
+]);
+
+'use strict';
+
+authModule.service('ResetPasswordService', [
+    '$http', 'AuthService',
+    function ($http, AuthService)
+    {
+        var self = this;
+        var apiRequestUrl = api_url('auth/reset');
+
+        this.resetPassword = function (credentials, callbacks)
+        {
+            var callbacks = callbacks || {};
+            var promises = {
+                success: function (response)
+                {
+                    AuthService.succeededLogin(response, {});
+
+                    if ( callbacks.success ) callbacks.success(response);
+                },
+                error: function (response)
+                {
+                    //
+
+                    if ( callbacks.error ) callbacks.error(response);
+                }
+            };
+
+            $http.put(apiRequestUrl, credentials).then(promises.success, promises.error);
+        }
+    }
+]);
+
+'use strict';
+
+authModule.controller('LoginController', [
+    '$scope', '$state', 'AuthService',
+    function ($scope, $state, AuthService)
+    {
+        $scope.credentials = {};
+
+        $scope.authenticate = function ()
+        {
+            AuthService.authenticate($scope.credentials, {
+                success: function (response)
+                {
+                    notify('Login efetuado com sucesso!', 'success');
+
+                    $state.go('dashboard');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            });
+        }
+    },
+]);
+
+'use strict';
+
+authModule.controller('ForgotPasswordController', [
+    '$scope', 'ForgotPasswordService',
+    function ($scope, ForgotPasswordService)
+    {
+        $scope.sendResetLinkEmail = function ()
+        {
+            ForgotPasswordService.sendResetLinkEmail($scope.email, {
+                success: function (response)
+                {
+                    notify('Nós enviamos à você um link para a recuperação de senha. Cheque sua caixa de entrada!', 'success');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            });
+        }
+    },
+]);
+
+'use strict';
+
+authModule.controller('ResetPasswordController', [
+    '$scope', '$state', '$stateParams', 'ResetPasswordService',
+    function ($scope, $state, $stateParams, ResetPasswordService)
+    {
+        $scope.credentials = {};
+        $scope.credentials.token = $stateParams.token;
+
+        $scope.resetPassword = function ()
+        {
+            ResetPasswordService.resetPassword($scope.credentials, {
+                success: function (response)
+                {
+                    notify('Sua senha foi recuperada com sucesso!', 'success');
+
+                    $state.go('dashboard');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            });
+        }
+    },
+]);
+
+'use strict';
+
+var rootDashboardModule = angular.module('root-dashboard', ['ui.router', 'auth']);
+
+'use strict';
+
+rootDashboardModule.config([
+    '$httpProvider',
+    function ($httpProvider)
+    {
+        $httpProvider.interceptors.push('AuthorizationHttpInterceptorService');
+    }
+]);
+
+rootDashboardModule.run([
+    '$transitions', '$injector',
+    function ($transitions, $injector)
+    {
+        $transitions.onStart({}, function(trans)
+        {
+            var toState = trans.to();
+            var toStateBelongsToRootDashboardState = toState.parent == 'root-dashboard';
+            var AuthService = $injector.get('AuthService');
+
+            if ( ! AuthService.isAuthenticated() && toStateBelongsToRootDashboardState ) {
+                // User isn't authenticated. Redirect to a new Target State
+                return trans.router.stateService.target('login');
+            }
+        });
+    }
+]);
+
+'use strict';
+
+rootDashboardModule.controller('RootDashboardController', [
+    '$scope', '$state', 'AuthService',
+    function ($scope, $state, AuthService)
+    {
+        // Initializes the layout controls
+        window.layoutInit();
+
+        $scope.auth_user = AuthService.getUser();
+
+        $scope.logout = function ()
+        {
+            AuthService.unAuthenticate({
+                success: function (response)
+                {
+                    notify('Logout efetuado com sucesso!', 'success');
+
+                    $state.go('login');
+                }
+            });
+        };
+    },
+]);
+
+'use strict';
+
+rootDashboardModule.factory('AuthorizationHttpInterceptorService', [
+    '$q', '$state',
+    function ($q, $state)
+    {
+        this.responseError = function (rejection)
+        {
+            var status = rejection.status;
+
+            if ( status == 401 ) {
+                notify('Sua sessão foi finalizada. você precisa fazer login novamente.', 'info', 10000);
+                $state.go('login');
+            }
+
+            return $q.reject(rejection);
+        };
+
+        return this;
+    }
+]);
+
+'use strict';
+
+var dashboardModule = angular.module('dashboard', []);
+
+'use strict';
+
+dashboardModule.controller('DashboardController', [
+    '$scope',
+    function ($scope)
+    {
+        //
+    },
+]);
+
+'use strict';
+
+var usersModule = angular.module('users', ['ngMessages', 'ui.router']);
+
+'use strict';
+
+usersModule.controller('UsersListController', [
+    '$scope', '$http',
+    function ($scope, $http)
+    {
+        $scope.getUsers = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.users = response.data;
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.get(api_url('admin/users')).then(promises.success, promises.error);
+        };
+
+        $scope.getUsers();
+    }
+]);
+
+'use strict';
+
+usersModule.controller('UsersRegisterController', [
+    '$scope', '$http',
+    function ($scope, $http)
+    {
+        $scope.user = {};
+
+        $scope.store = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.user = {};
+
+                    notify('Usuário registrado com sucesso!.', 'success');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.post(api_url('admin/users'), $scope.user).then(promises.success, promises.error);
+        };
+    }
+]);
+
+'use strict';
+
+usersModule.controller('UsersProfileController', [
+    '$scope', '$http', '$state', '$stateParams', 'AuthService',
+    function ($scope, $http, $state, $stateParams, AuthService)
+    {
+        $scope.user = {};
+        $scope.authUser = AuthService.getUser();
+
+        $scope.getUser = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.user = response.data;
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.get(api_url('admin/users/' + $stateParams.id)).then(promises.success, promises.error);
+        };
+
+        $scope.update = function ()
+        {
+            $scope.user = clearEmptyData($scope.user);
+
+            var promises = {
+                success: function (response)
+                {
+                    notify('Perfil atualizado com sucesso!', 'success');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.put(api_url('admin/users/' + $scope.user.id), $scope.user).then(promises.success, promises.error);
+        };
+
+        $scope.delete = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    if ( $scope.authUser.id == $scope.user.id ) {
+                        AuthService.unAuthenticate();
+
+                        notify('Sua conta foi deletada com sucesso!', 'success');
+                        $state.go('login');
+
+                        return;
+                    }
+
+                    notify('Usuário deletado com sucesso!', 'success');
+                    $state.go('users-list');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.delete(api_url('admin/users/' + $scope.user.id)).then(promises.success, promises.error);
+        };
+
+        var clearEmptyData = function (data)
+        {
+            if ( data instanceof Object ) {
+                for (key in data) {
+                    if ( ! data[key] ) delete data[key];
+                }
+            }
+
+            return data;
+        }
+
+        $scope.getUser();
+    }
+]);

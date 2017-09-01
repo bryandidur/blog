@@ -1,0 +1,37 @@
+<div class="login-box">
+    <div class="login-logo">
+        <a><b>Blog</b></a>
+    </div>
+
+    <div class="login-box-body">
+        <p class="login-box-msg">Digite suas credenciais para iniciar sua sessão</p>
+        <form name="loginForm" data-ng-submit="authenticate($event)" novalidate>
+            <div class="form-group has-feedback" data-ng-class="{'has-error': loginForm.email.$invalid && loginForm.email.$touched}">
+                <input class="form-control" name="email" type="email" placeholder="Email" data-ng-model="credentials.email" data-ng-required="true" data-validate-email="true">
+                <span class="fa fa-envelope form-control-feedback"></span>
+
+                <div class="help-block" data-ng-show="loginForm.$submitted || loginForm.email.$touched" data-ng-messages="loginForm.email.$error">
+                    <div data-ng-messages-include="validation-messages"></div>
+                </div>
+            </div>
+            <div class="form-group has-feedback" data-ng-class="{'has-error': loginForm.password.$invalid && loginForm.password.$touched}">
+                <input class="form-control" name="password" type="password" placeholder="Senha" data-ng-model="credentials.password" data-ng-required="true">
+                <span class="fa fa-lock form-control-feedback"></span>
+
+                <div class="help-block" data-ng-show="loginForm.$submitted || loginForm.password.$touched" data-ng-messages="loginForm.password.$error">
+                    <div data-ng-messages-include="validation-messages"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5">
+                    <button class="btn btn-primary btn-block btn-flat" type="submit" data-ng-disabled="loginForm.$invalid">Entrar</button>
+                </div>
+                <div class="col-xs-7 text-right">
+                    <div class="checkbox">
+                        <a data-ui-sref="forgot-password">Esqueci minha senha</a><br>
+                    </div>
+                </div>
+            </div><!-- / .row -->
+        </form>
+    </div><!-- /.login-box-body -->
+</div><!-- /.login-box -->

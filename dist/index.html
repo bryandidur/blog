@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <link rel="stylesheet" href="assets/css/app.css">
 
@@ -17,27 +16,14 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 </head>
-<!-- <body class="hold-transition skin-black sidebar-mini"> -->
 <body class="hold-transition skin-black sidebar-mini login-page">
 
-    <div data-ng-view></div>
+    <!-- Main view -->
+    <div data-ui-view=""></div>
+
+    <div data-ng-include="'views/validation-messages.html'"></div>
 
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
-
-    <script src="app/app.module.js"></script>
-    <script src="app/auth/auth.module.js"></script>
-    <script src="app/auth/auth.config.js"></script>
-    <script src="app/blog/blog.module.js"></script>
-    <script src="app/users/users.module.js"></script>
-    <script src="app/users/users.config.js"></script>
-
-    <script src="app/auth/login/login.controller.js"></script>
-    <script src="app/auth/forgot-password/forgot-password.controller.js"></script>
-    <script src="app/auth/reset-password/reset-password.controller.js"></script>
-    <script src="app/blog/dashboard/dashboard.controller.js"></script>
-    <script src="app/users/users-list.controller.js"></script>
-    <script src="app/users/users-create.controller.js"></script>
-    <script src="app/users/users-profile.controller.js"></script>
 </body>
 </html>

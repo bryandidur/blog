@@ -2,5 +2,14 @@
     "/assets/css/app.css": "/assets/css/app.css",
     "/assets/js/vendor.js": "/assets/js/vendor.js",
     "/assets/js/app.js": "/assets/js/app.js",
+    "/views/forgot-password.html": "/views/forgot-password.html",
+    "/views/login.html": "/views/login.html",
+    "/views/reset-password.html": "/views/reset-password.html",
+    "/views/dashboard.html": "/views/dashboard.html",
+    "/views/root-dashboard.html": "/views/root-dashboard.html",
+    "/views/users-list.html": "/views/users-list.html",
+    "/views/users-profile.html": "/views/users-profile.html",
+    "/views/users-register.html": "/views/users-register.html",
+    "/views/validation-messages.html": "/views/validation-messages.html",
     "/assets/img/user.jpg": "/assets/img/user.jpg"
 }
