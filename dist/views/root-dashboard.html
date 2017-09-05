@@ -76,7 +76,11 @@
             <!-- Sidebar Menu -->
             <ul class="sidebar-menu" data-widget="tree">
                 <li class="header">PAINEL ADMINISTRATIVO</li>
+
+                <!-- Dashboard -->
                 <li class="active"><a data-ng-href="#!dashboard"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+
+                <!-- Tags -->
                 <li class="treeview">
                     <a href="javascript:void(0);"><i class="fa fa-tags"></i> <span>Tags</span>
                         <span class="pull-right-container">
@@ -88,6 +92,21 @@
                         <li><a data-ui-sref="tags-create">Adicionar tag</a></li>
                     </ul>
                 </li>
+
+                <!-- Categories -->
+                <li class="treeview">
+                    <a href="javascript:void(0);"><i class="fa fa-object-group"></i> <span>Categorias</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a data-ui-sref="categories-list">Ver categorias</a></li>
+                        <li><a data-ui-sref="categories-create">Adicionar categoria</a></li>
+                    </ul>
+                </li>
+
+                <!-- Users -->
                 <li class="treeview">
                     <a href="javascript:void(0);"><i class="fa fa-users"></i> <span>Usuários</span>
                         <span class="pull-right-container">

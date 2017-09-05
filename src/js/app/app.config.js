@@ -76,6 +76,26 @@ appModule.config([
                 templateUrl: view('tags-update.html'),
                 controller: 'TagsUpdateController',
             },
+
+            // Categories
+            'categories-list': {
+                parent: 'root-dashboard',
+                url: '/categories',
+                templateUrl: view('categories-list.html'),
+                controller: 'CategoriesListController',
+            },
+            'categories-create': {
+                parent: 'root-dashboard',
+                url: '/categories/create',
+                templateUrl: view('categories-create.html'),
+                controller: 'CategoriesCreateController',
+            },
+            'categories-update': {
+                parent: 'root-dashboard',
+                url: '/categories/:id',
+                templateUrl: view('categories-update.html'),
+                controller: 'CategoriesUpdateController',
+            },
         };
 
         // Register routeStates

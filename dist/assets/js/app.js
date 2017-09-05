@@ -899,7 +899,10 @@ var show_messages = function (data, state, timeout) {
 
 'use strict';
 
-var appModule = angular.module('app', ['ngMessages', 'ui.router', 'ui.router.state.events', 'validation', 'auth', 'root-dashboard', 'dashboard', 'users', 'tags']);
+var appModule = angular.module('app', [
+    'ngMessages', 'ui.router', 'ui.router.state.events',
+    'validation', 'auth', 'root-dashboard', 'dashboard', 'users', 'tags', 'categories'
+]);
 
 'use strict';
 
@@ -978,6 +981,26 @@ appModule.config([
                 url: '/tags/:id',
                 templateUrl: view('tags-update.html'),
                 controller: 'TagsUpdateController',
+            },
+
+            // Categories
+            'categories-list': {
+                parent: 'root-dashboard',
+                url: '/categories',
+                templateUrl: view('categories-list.html'),
+                controller: 'CategoriesListController',
+            },
+            'categories-create': {
+                parent: 'root-dashboard',
+                url: '/categories/create',
+                templateUrl: view('categories-create.html'),
+                controller: 'CategoriesCreateController',
+            },
+            'categories-update': {
+                parent: 'root-dashboard',
+                url: '/categories/:id',
+                templateUrl: view('categories-update.html'),
+                controller: 'CategoriesUpdateController',
             },
         };
 
@@ -1769,5 +1792,137 @@ tagsModule.controller('TagsUpdateController', [
         }
 
         $scope.getTag();
+    }
+]);
+
+'use strict';
+
+var categoriesModule = angular.module('categories', ['ngMessages', 'ui.router']);
+
+'use strict';
+
+categoriesModule.controller('CategoriesListController', [
+    '$scope', '$http',
+    function ($scope, $http)
+    {
+        $scope.getCategories = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.categories = response.data;
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.get(api_url('admin/categories')).then(promises.success, promises.error);
+        };
+
+        $scope.getCategories();
+    }
+]);
+
+'use strict';
+
+categoriesModule.controller('CategoriesCreateController', [
+    '$scope', '$http',
+    function ($scope, $http)
+    {
+        $scope.category = {};
+
+        $scope.store = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.category = {};
+
+                    notify('Categoria cadastrada com sucesso!', 'success');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.post(api_url('admin/categories'), $scope.category).then(promises.success, promises.error);
+        }
+    }
+]);
+
+'use strict';
+
+categoriesModule.controller('CategoriesUpdateController', [
+    '$scope', '$http', '$state', '$stateParams',
+    function ($scope, $http, $state, $stateParams)
+    {
+        $scope.category = {};
+
+        $scope.getCategory = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.category = response.data;
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.get(api_url('admin/categories/' + $stateParams.id)).then(promises.success, promises.error);
+        };
+
+        $scope.update = function ()
+        {
+            $scope.category = clearEmptyData($scope.category);
+
+            var promises = {
+                success: function (response)
+                {
+                    notify('Categoria atualizada com sucesso!', 'success');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.put(api_url('admin/categories/' + $scope.category.id), $scope.category).then(promises.success, promises.error);
+        };
+
+        $scope.delete = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    notify('Categoria deletada com sucesso!', 'success');
+                    $state.go('categories-list');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.delete(api_url('admin/categories/' + $scope.category.id)).then(promises.success, promises.error);
+        };
+
+        var clearEmptyData = function (data)
+        {
+            if ( data instanceof Object ) {
+                for (key in data) {
+                    if ( ! data[key] ) delete data[key];
+                }
+            }
+
+            return data;
+        }
+
+        $scope.getCategory();
     }
 ]);

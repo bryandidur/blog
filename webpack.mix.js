@@ -63,6 +63,12 @@ mix.scripts([
     'src/js/app/tags/controllers/TagsListController.js',
     'src/js/app/tags/controllers/TagsCreateController.js',
     'src/js/app/tags/controllers/TagsUpdateController.js',
+
+    // Categories module
+    'src/js/app/categories/categories.module.js',
+    'src/js/app/categories/controllers/CategoriesListController.js',
+    'src/js/app/categories/controllers/CategoriesCreateController.js',
+    'src/js/app/categories/controllers/CategoriesUpdateController.js',
 ], 'dist/assets/js/app.js');
 
 mix.copy([
