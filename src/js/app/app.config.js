@@ -7,6 +7,7 @@ appModule.config([
         $urlRouterProvider.otherwise('/login');
 
         var routeStates = {
+            // Auth
             'login': {
                 url: '/login',
                 templateUrl: view('login.html'),
@@ -22,6 +23,8 @@ appModule.config([
                 templateUrl: view('reset-password.html'),
                 controller: 'ResetPasswordController',
             },
+
+            // Root Dashboard | Dashboard
             'root-dashboard': {
                 abstract: true,
                 templateUrl: view('root-dashboard.html'),
@@ -33,6 +36,8 @@ appModule.config([
                 templateUrl: view('dashboard.html'),
                 controller: 'DashboardController',
             },
+
+            // Users
             'users-list': {
                 parent: 'root-dashboard',
                 url: '/users',
@@ -47,9 +52,29 @@ appModule.config([
             },
             'users-profile': {
                 parent: 'root-dashboard',
-                url: '/users/profile/:id',
+                url: '/users/:id',
                 templateUrl: view('users-profile.html'),
                 controller: 'UsersProfileController',
+            },
+
+            // Tags
+            'tags-list': {
+                parent: 'root-dashboard',
+                url: '/tags',
+                templateUrl: view('tags-list.html'),
+                controller: 'TagsListController',
+            },
+            'tags-create': {
+                parent: 'root-dashboard',
+                url: '/tags/create',
+                templateUrl: view('tags-create.html'),
+                controller: 'TagsCreateController',
+            },
+            'tags-update': {
+                parent: 'root-dashboard',
+                url: '/tags/:id',
+                templateUrl: view('tags-update.html'),
+                controller: 'TagsUpdateController',
             },
         };
 

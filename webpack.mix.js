@@ -57,6 +57,12 @@ mix.scripts([
     'src/js/app/users/controllers/UsersListController.js',
     'src/js/app/users/controllers/UsersRegisterController.js',
     'src/js/app/users/controllers/UsersProfileController.js',
+
+    // Tags module
+    'src/js/app/tags/tags.module.js',
+    'src/js/app/tags/controllers/TagsListController.js',
+    'src/js/app/tags/controllers/TagsCreateController.js',
+    'src/js/app/tags/controllers/TagsUpdateController.js',
 ], 'dist/assets/js/app.js');
 
 mix.copy([

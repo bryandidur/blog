@@ -899,7 +899,7 @@ var show_messages = function (data, state, timeout) {
 
 'use strict';
 
-var appModule = angular.module('app', ['ngMessages', 'ui.router', 'ui.router.state.events', 'validation', 'auth', 'root-dashboard', 'dashboard', 'users']);
+var appModule = angular.module('app', ['ngMessages', 'ui.router', 'ui.router.state.events', 'validation', 'auth', 'root-dashboard', 'dashboard', 'users', 'tags']);
 
 'use strict';
 
@@ -910,6 +910,7 @@ appModule.config([
         $urlRouterProvider.otherwise('/login');
 
         var routeStates = {
+            // Auth
             'login': {
                 url: '/login',
                 templateUrl: view('login.html'),
@@ -925,6 +926,8 @@ appModule.config([
                 templateUrl: view('reset-password.html'),
                 controller: 'ResetPasswordController',
             },
+
+            // Root Dashboard | Dashboard
             'root-dashboard': {
                 abstract: true,
                 templateUrl: view('root-dashboard.html'),
@@ -936,6 +939,8 @@ appModule.config([
                 templateUrl: view('dashboard.html'),
                 controller: 'DashboardController',
             },
+
+            // Users
             'users-list': {
                 parent: 'root-dashboard',
                 url: '/users',
@@ -950,9 +955,29 @@ appModule.config([
             },
             'users-profile': {
                 parent: 'root-dashboard',
-                url: '/users/profile/:id',
+                url: '/users/:id',
                 templateUrl: view('users-profile.html'),
                 controller: 'UsersProfileController',
+            },
+
+            // Tags
+            'tags-list': {
+                parent: 'root-dashboard',
+                url: '/tags',
+                templateUrl: view('tags-list.html'),
+                controller: 'TagsListController',
+            },
+            'tags-create': {
+                parent: 'root-dashboard',
+                url: '/tags/create',
+                templateUrl: view('tags-create.html'),
+                controller: 'TagsCreateController',
+            },
+            'tags-update': {
+                parent: 'root-dashboard',
+                url: '/tags/:id',
+                templateUrl: view('tags-update.html'),
+                controller: 'TagsUpdateController',
             },
         };
 
@@ -1612,5 +1637,137 @@ usersModule.controller('UsersProfileController', [
         }
 
         $scope.getUser();
+    }
+]);
+
+'use strict';
+
+var tagsModule = angular.module('tags', ['ngMessages', 'ui.router']);
+
+'use strict';
+
+tagsModule.controller('TagsListController', [
+    '$scope', '$http',
+    function ($scope, $http)
+    {
+        $scope.getTags = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.tags = response.data;
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.get(api_url('admin/tags')).then(promises.success, promises.error);
+        };
+
+        $scope.getTags();
+    }
+]);
+
+'use strict';
+
+tagsModule.controller('TagsCreateController', [
+    '$scope', '$http',
+    function ($scope, $http)
+    {
+        $scope.tag = {};
+
+        $scope.store = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.tag = {};
+
+                    notify('Tag cadastrada com sucesso!.', 'success');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.post(api_url('admin/tags'), $scope.tag).then(promises.success, promises.error);
+        }
+    }
+]);
+
+'use strict';
+
+tagsModule.controller('TagsUpdateController', [
+    '$scope', '$http', '$state', '$stateParams', 'AuthService',
+    function ($scope, $http, $state, $stateParams, AuthService)
+    {
+        $scope.tag = {};
+
+        $scope.getTag = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    $scope.tag = response.data;
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.get(api_url('admin/tags/' + $stateParams.id)).then(promises.success, promises.error);
+        };
+
+        $scope.update = function ()
+        {
+            $scope.tag = clearEmptyData($scope.tag);
+
+            var promises = {
+                success: function (response)
+                {
+                    notify('Tag atualizada com sucesso!', 'success');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.put(api_url('admin/tags/' + $scope.tag.id), $scope.tag).then(promises.success, promises.error);
+        };
+
+        $scope.delete = function ()
+        {
+            var promises = {
+                success: function (response)
+                {
+                    notify('Tag deletada com sucesso!', 'success');
+                    $state.go('tags-list');
+                },
+                error: function (response)
+                {
+                    show_messages(response.data, 'error');
+                },
+            };
+
+            $http.delete(api_url('admin/tags/' + $scope.tag.id)).then(promises.success, promises.error);
+        };
+
+        var clearEmptyData = function (data)
+        {
+            if ( data instanceof Object ) {
+                for (key in data) {
+                    if ( ! data[key] ) delete data[key];
+                }
+            }
+
+            return data;
+        }
+
+        $scope.getTag();
     }
 ]);
