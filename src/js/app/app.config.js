@@ -96,6 +96,26 @@ appModule.config([
                 templateUrl: view('categories-update.html'),
                 controller: 'CategoriesUpdateController',
             },
+
+            // Articles
+            'articles-list': {
+                parent: 'root-dashboard',
+                url: '/articles',
+                templateUrl: view('articles-list.html'),
+                controller: 'ArticlesListController',
+            },
+            'articles-create': {
+                parent: 'root-dashboard',
+                url: '/articles/create',
+                templateUrl: view('articles-create.html'),
+                controller: 'ArticlesCreateController',
+            },
+            'articles-update': {
+                parent: 'root-dashboard',
+                url: '/articles/:id',
+                templateUrl: view('articles-update.html'),
+                controller: 'ArticlesUpdateController',
+            },
         };
 
         // Register routeStates

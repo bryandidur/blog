@@ -69,6 +69,13 @@ mix.scripts([
     'src/js/app/categories/controllers/CategoriesListController.js',
     'src/js/app/categories/controllers/CategoriesCreateController.js',
     'src/js/app/categories/controllers/CategoriesUpdateController.js',
+
+    // Articles module
+    'src/js/app/articles/articles.module.js',
+    'src/js/app/articles/services/ArticlesService.js',
+    'src/js/app/articles/controllers/ArticlesListController.js',
+    'src/js/app/articles/controllers/ArticlesCreateController.js',
+    'src/js/app/articles/controllers/ArticlesUpdateController.js',
 ], 'dist/assets/js/app.js');
 
 mix.copy([

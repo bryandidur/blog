@@ -901,7 +901,8 @@ var show_messages = function (data, state, timeout) {
 
 var appModule = angular.module('app', [
     'ngMessages', 'ui.router', 'ui.router.state.events',
-    'validation', 'auth', 'root-dashboard', 'dashboard', 'users', 'tags', 'categories'
+    'validation', 'auth', 'root-dashboard', 'dashboard',
+    'users', 'tags', 'categories', 'articles'
 ]);
 
 'use strict';
@@ -1001,6 +1002,26 @@ appModule.config([
                 url: '/categories/:id',
                 templateUrl: view('categories-update.html'),
                 controller: 'CategoriesUpdateController',
+            },
+
+            // Articles
+            'articles-list': {
+                parent: 'root-dashboard',
+                url: '/articles',
+                templateUrl: view('articles-list.html'),
+                controller: 'ArticlesListController',
+            },
+            'articles-create': {
+                parent: 'root-dashboard',
+                url: '/articles/create',
+                templateUrl: view('articles-create.html'),
+                controller: 'ArticlesCreateController',
+            },
+            'articles-update': {
+                parent: 'root-dashboard',
+                url: '/articles/:id',
+                templateUrl: view('articles-update.html'),
+                controller: 'ArticlesUpdateController',
             },
         };
 
@@ -1924,5 +1945,382 @@ categoriesModule.controller('CategoriesUpdateController', [
         }
 
         $scope.getCategory();
+    }
+]);
+
+
+var articlesModule = angular.module('articles', ['ngMessages', 'ui.router']);
+
+
+articlesModule.service('ArticlesService', [
+    '$q', '$http',
+    function ($q, $http)
+    {
+        var self = this;
+        self.requestUrl = api_url('admin/articles');
+        self.qService = $q;
+        self.httpService = $http;
+
+        /**
+         * Get all articles.
+         *
+         * @return Angular promise
+         */
+        self.all = function ()
+        {
+            var qDeferred = self.qService.defer();
+
+            self.httpService.get(self.requestUrl).then(
+                function (response)
+                {
+                    qDeferred.resolve(response);
+                },
+                function (response)
+                {
+                    qDeferred.reject(response);
+                }
+            );
+
+            return qDeferred.promise;
+        }
+
+        /**
+         * Find an specific article.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.find = function (id)
+        {
+            var qDeferred = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.get(requestUrl).then(
+                function (response)
+                {
+                    qDeferred.resolve(response);
+                },
+                function (response)
+                {
+                    qDeferred.reject(response);
+                }
+            );
+
+            return qDeferred.promise;
+        }
+
+        /**
+         * Stores the article.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.store = function (data)
+        {
+            var qDeferred = self.qService.defer();
+
+            self.httpService.post(self.requestUrl, data).then(
+                function (response)
+                {
+                    qDeferred.resolve(response);
+                },
+                function (response)
+                {
+                    qDeferred.reject(response);
+                }
+            );
+
+            return qDeferred.promise;
+        }
+
+        /**
+         * Update an article.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.update = function (data)
+        {
+            var article = angular.copy(data);
+            var qDeferred = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + data.id;
+
+            article.tags = self.getIds(article.tags);
+            article.categories = self.getIds(article.categories);
+
+            self.httpService.put(requestUrl, article).then(
+                function (response)
+                {
+                    qDeferred.resolve(response);
+                },
+                function (response)
+                {
+                    qDeferred.reject(response);
+                }
+            );
+
+            return qDeferred.promise;
+        }
+
+        /**
+         * Delete the article.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.destroy = function (id)
+        {
+            var qDeferred = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.delete(requestUrl).then(
+                function (response)
+                {
+                    qDeferred.resolve(response);
+                },
+                function (response)
+                {
+                    qDeferred.reject(response);
+                }
+            );
+
+            return qDeferred.promise;
+        }
+
+        /**
+         * Return only ids from an array of objects.
+         *
+         * @param  array data
+         * @return array
+         */
+        self.getIds = function (data)
+        {
+            var ids = [];
+
+            angular.forEach(data, function (item, key) {
+                ids.push(item.id);
+            });
+
+            return ids;
+        }
+    }
+]);
+
+
+articlesModule.controller('ArticlesListController', [
+    '$scope', 'ArticlesService',
+    function ($scope, ArticlesService)
+    {
+        var self = $scope;
+        self.articles = [];
+
+        /**
+         * Get all articles.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            ArticlesService.all().then(
+                function (response)
+                {
+                    self.articles = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter a lista de artigos!', 'error');
+                }
+            );
+        };
+
+        self.getAll();
+    }
+]);
+
+
+articlesModule.controller('ArticlesCreateController', [
+    '$scope', '$q', 'ArticlesService', '$http',
+    function ($scope, $q, ArticlesService, $http)
+    {
+        self = $scope;
+        self.article = {status: 1};
+        self.tags = [];
+        self.categories = [];
+        self.qService = $q;
+
+        /**
+         * Stores the article.
+         *
+         * @return void
+         */
+        self.store = function ()
+        {
+            ArticlesService.store(self.article).then(
+                function (response)
+                {
+                    self.article = {status: 1};
+                    notify('Artigo cadastrado com sucesso!', 'success');
+                },
+                function (response) {
+                    notify('Não foi possível cadastrar o artigo!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Get data needed by the view.
+         *
+         * @return void
+         */
+        self.getViewData = function ()
+        {
+            var categories = getData(api_url('admin/categories'));
+
+            var tags = categories.then(function (response) {
+                return getData(api_url('admin/tags'));
+            });
+
+            var callbacks = {
+                success: function (response)
+                {
+                    self.categories = response[0].data;
+                    self.tags = response[1].data;
+                },
+                error: function (response)
+                {
+                   notify('Não foi possível obter os dados necessários para o cadastro!', 'error');
+                }
+            };
+
+            self.qService.all([categories, tags]).then(callbacks.success).catch(callbacks.error);
+        };
+
+        var getData = function (url)
+        {
+            var deferred = $q.defer();
+
+            var callbacks = {
+                success: function (response)
+                {
+                     deferred.resolve(response);
+                },
+                error: function (response)
+                {
+                    deferred.reject(response);
+                },
+            };
+            $http.get(url).then(callbacks.success, callbacks.error);
+
+            return deferred.promise;
+        };
+
+        self.getViewData();
+    }
+]);
+
+
+articlesModule.controller('ArticlesUpdateController', [
+    '$scope', '$q', '$state', '$stateParams', 'ArticlesService', '$http',
+    function ($scope, $q, $state, $stateParams, ArticlesService, $http)
+    {
+        self = $scope;
+        self.article = {};
+        self.tags = [];
+        self.categories = [];
+        self.id = $stateParams.id;
+        self.qService = $q;
+
+        /**
+         * Updates the article.
+         *
+         * @return void
+         */
+        self.update = function ()
+        {
+            ArticlesService.update(self.article).then(
+                function (response)
+                {
+                    notify('Artigo editado com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível salvar as alterações do artigo!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Delete the article.
+         *
+         * @return void
+         */
+        self.destroy = function ()
+        {
+            ArticlesService.destroy(self.id).then(
+                function (response)
+                {
+                    notify('Artigo deletado com sucesso!', 'success');
+                    $state.go('articles-list');
+                },
+                function (response)
+                {
+                    notify('Não foi possível deletar o artigo!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Get data needed by the view.
+         *
+         * @return void
+         */
+        self.getViewData = function ()
+        {
+            var article = ArticlesService.find(self.id);
+
+            var categories = article.then(function (response) {
+                return getData(api_url('admin/categories'));
+            })
+
+            var tags = categories.then(function (response) {
+                return getData(api_url('admin/tags'));
+            });
+
+            var callbacks = {
+                success: function (response)
+                {
+                    self.article = response[0].data;
+                    self.categories = response[1].data;
+                    self.tags = response[2].data;
+                },
+                error: function (response)
+                {
+                   notify('Não foi possível obter os dados necessários para a edição!', 'error');
+                }
+            };
+
+            self.qService.all([article, categories, tags]).then(callbacks.success).catch(callbacks.error);
+        }
+
+        var getData = function (url)
+        {
+            var deferred = $q.defer();
+
+            var callbacks = {
+                success: function (response)
+                {
+                     deferred.resolve(response);
+                },
+                error: function (response)
+                {
+                    deferred.reject(response);
+                },
+            };
+            $http.get(url).then(callbacks.success, callbacks.error);
+
+            return deferred.promise;
+        };
+
+        self.getViewData();
     }
 ]);
