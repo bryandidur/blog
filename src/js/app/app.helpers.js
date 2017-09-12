@@ -1,27 +1,44 @@
-'use strict';
-
-var log = function (args) {
-    var argsLength = arguments.length;
-    for (var i = 0; i < argsLength; i++) {
-        console.log(arguments[i]);
-    }
-};
-
-var view = function (viewName)
-{
-    return 'views/' + viewName;
-};
-
+/**
+ * Generate an Application URL for the path.
+ *
+ * @param  string path
+ * @return string
+ */
 var url = function (path)
 {
     return env.APP_URL + path;
 };
 
+/**
+ * Generate an API URL for the path.
+ *
+ * @param  string path
+ * @return string
+ */
 var api_url = function (path)
 {
     return env.API_URL + path;
 };
 
+/**
+ * Generate the full view path for the view name.
+ *
+ * @param  string viewName
+ * @return string
+ */
+var view = function (viewName)
+{
+    return 'views/' + viewName;
+};
+
+/**
+ * Shows an toast to notify an message the user.
+ *
+ * @param  string message
+ * @param  string state
+ * @param  number timeout
+ * @return void
+ */
 var notify = function (message, state, timeout)
 {
     var title, states, timeout;
@@ -47,6 +64,15 @@ var notify = function (message, state, timeout)
     });
 };
 
+/**
+ * Display server (API) messages to the user,
+ * with the help of the "notify()" helper.
+ *
+ * @param  object data
+ * @param  string state
+ * @param  number timeout
+ * @return void
+ */
 var show_messages = function (data, state, timeout) {
     if ( data instanceof Object ) {
         var i, key, msgs = '';
@@ -62,5 +88,18 @@ var show_messages = function (data, state, timeout) {
         }
 
         notify(msgs, state, timeout);
+    }
+};
+
+/**
+ * Alias for "console.log()".
+ *
+ * @param  mixed args
+ * @return void
+ */
+var log = function (args) {
+    var argsLength = arguments.length;
+    for (var i = 0; i < argsLength; i++) {
+        console.log(arguments[i]);
     }
 };

@@ -58,7 +58,7 @@ $.AdminLTE.options = {
   //'fast', 'normal', or 'slow'
   animationSpeed: 500,
   //Sidebar push menu toggle button selector
-  sidebarToggleSelector: "[data-toggle='offcanvas']",
+  sidebarToggleSelector: "[data-toggle='push-menu']",
   //Activate sidebar push menu
   sidebarPushMenu: true,
   //Activate sidebar slimscroll if the fixed layout is set (requires SlimScroll Plugin)
@@ -771,6 +771,11 @@ function _init() {
   };
 }(jQuery));
 
+/**
+ * Initializes the layout
+ *
+ * @return void
+ */
 window.layoutInit = function () {
     //Easy access to options
     var o = $.AdminLTE.options;
@@ -821,6 +826,15 @@ window.layoutInit = function () {
     }
 };
 
+/*
+|--------------------------------------------------------------------------
+| Application Environment Setup
+|--------------------------------------------------------------------------
+|
+| Define the enviroment setup variables and set the application mode.
+|
+*/
+
 'use strict';
 
 window.env = window.env || {};
@@ -830,30 +844,47 @@ window.env.APP_ENV = 'development';
 window.env.APP_URL = 'http://localhost:8080/';
 window.env.API_URL = 'http://localhost:8000/';
 
-'use strict';
-
-var log = function (args) {
-    var argsLength = arguments.length;
-    for (var i = 0; i < argsLength; i++) {
-        console.log(arguments[i]);
-    }
-};
-
-var view = function (viewName)
-{
-    return 'views/' + viewName;
-};
-
+/**
+ * Generate an Application URL for the path.
+ *
+ * @param  string path
+ * @return string
+ */
 var url = function (path)
 {
     return env.APP_URL + path;
 };
 
+/**
+ * Generate an API URL for the path.
+ *
+ * @param  string path
+ * @return string
+ */
 var api_url = function (path)
 {
     return env.API_URL + path;
 };
 
+/**
+ * Generate the full view path for the view name.
+ *
+ * @param  string viewName
+ * @return string
+ */
+var view = function (viewName)
+{
+    return 'views/' + viewName;
+};
+
+/**
+ * Shows an toast to notify an message the user.
+ *
+ * @param  string message
+ * @param  string state
+ * @param  number timeout
+ * @return void
+ */
 var notify = function (message, state, timeout)
 {
     var title, states, timeout;
@@ -879,6 +910,15 @@ var notify = function (message, state, timeout)
     });
 };
 
+/**
+ * Display server (API) messages to the user,
+ * with the help of the "notify()" helper.
+ *
+ * @param  object data
+ * @param  string state
+ * @param  number timeout
+ * @return void
+ */
 var show_messages = function (data, state, timeout) {
     if ( data instanceof Object ) {
         var i, key, msgs = '';
@@ -897,15 +937,38 @@ var show_messages = function (data, state, timeout) {
     }
 };
 
-'use strict';
+/**
+ * Alias for "console.log()".
+ *
+ * @param  mixed args
+ * @return void
+ */
+var log = function (args) {
+    var argsLength = arguments.length;
+    for (var i = 0; i < argsLength; i++) {
+        console.log(arguments[i]);
+    }
+};
 
+/**
+ * Define the main application module.
+ *
+ * @type object
+ */
 var appModule = angular.module('app', [
     'ngMessages', 'ui.router', 'ui.router.state.events',
     'validation', 'auth', 'root-dashboard', 'dashboard',
     'users', 'tags', 'categories', 'articles'
 ]);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Main Application Configuration Setup
+|--------------------------------------------------------------------------
+|
+| Set up the app routes and other main configurations.
+|
+*/
 
 appModule.config([
     '$stateProvider', '$urlRouterProvider',
@@ -1032,67 +1095,91 @@ appModule.config([
     }
 ]);
 
-'use strict';
-
+/**
+ * Define the validation module.
+ *
+ * @type object
+ */
 var validationModule = angular.module('validation', ['ngMessages']);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Directive For Validate E-mails
+|--------------------------------------------------------------------------
+|
+*/
 
-validationModule.directive('validateEmail', function ()
-{
-    var config = {
-        restrict: 'A',
-        require: '?ng-model',
-        link: function (scope, elem, attrs, ctrl)
-        {
-            // Only apply the validator if ngModel is present and AngularJS has added the email validator
-            if ( ctrl && ctrl.$validators.email ) {
-                var emailREGEXP = /^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/;
+validationModule.directive('validateEmail',
+    function ()
+    {
+        return {
+            restrict: 'A',
+            require: '?ng-model',
+            link: function (scope, element, attributes, controller)
+            {
+                // Only apply the validator if ngModel is present and AngularJS has added the email validator
+                if ( controller && controller.$validators.email ) {
+                    var emailREGEXP = /^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/;
 
-                // This will overwrite the default AngularJS email validator
-                ctrl.$validators.email = function (modelValue) {
-                    return emailREGEXP.test(modelValue);
-                };
+                    // This will overwrite the default AngularJS email validator
+                    controller.$validators.email = function (modelValue) {
+                        return emailREGEXP.test(modelValue);
+                    };
+                }
             }
-        }
+        };
     }
+);
 
-    return config;
-});
+/*
+|--------------------------------------------------------------------------
+| Directive For Validate Password Confirmation
+|--------------------------------------------------------------------------
+|
+*/
 
-'use strict';
+validationModule.directive('validatePasswordConfirmation',
+    function ()
+    {
+        return {
+            restrict: 'A',
+            require: '?ng-model',
+            scope: {
+                passwordToCompare: "=validatePasswordConfirmation"
+            },
+            link: function(scope, element, attributes, controller)
+            {
+                // Only apply the validator if ngModel is present
+                if ( controller ) {
+                    controller.$validators.validatePasswordConfirmation = function (modelValue) {
+                        return modelValue == scope.passwordToCompare;
+                    };
 
-validationModule.directive('validatePasswordConfirmation', function ()
-{
-    var config = {
-        restrict: 'A',
-        require: '?ng-model',
-        scope: {
-            passwordToCompare: "=validatePasswordConfirmation"
-        },
-        link: function(scope, elem, attrs, ctrl)
-        {
-            // Only apply the validator if ngModel is present
-            if ( ctrl ) {
-                ctrl.$validators.validatePasswordConfirmation = function (modelValue) {
-                    return modelValue == scope.passwordToCompare;
-                };
-
-                scope.$watch("passwordToCompare", function () {
-                    ctrl.$validate();
-                });
+                    scope.$watch("passwordToCompare", function () {
+                        controller.$validate();
+                    });
+                }
             }
-        }
+        };
     }
+);
 
-    return config;
-});
-
-'use strict';
+/**
+ * Define the authentication module.
+ *
+ * @type object
+ */
 
 var authModule = angular.module('auth', ['ngMessages', 'ui.router']);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Auth Configuration Setup
+|--------------------------------------------------------------------------
+|
+| Set up the HTTP interceptors and other main configurations.
+|
+*/
 
 authModule.config([
     '$httpProvider',
@@ -1102,155 +1189,139 @@ authModule.config([
     }
 ]);
 
-'use strict';
-
-authModule.factory('RefreshAuthorizationHeaderService', [
-    '$q', '$injector',
-    function ($q, $injector)
-    {
-        var getRequestAccessToken = function () {
-            var AuthService = $injector.get('AuthService')
-            var accessToken = AuthService.getSessionData('access_token');
-
-            return accessToken;
-        };
-
-        var setRequestAccessToken = function (request, accessToken) {
-            request.headers.Authorization = accessToken;
-        };
-
-        var getResponseAccessToken = function (rejection) {
-            /// Get the refreshed access_token on Authorization header
-            var refreshedAccessToken = rejection.headers('Authorization');
-
-            return refreshedAccessToken;
-        };
-
-        var setResponseAccessToken = function (refreshedAccessToken) {
-            var AuthService = $injector.get('AuthService')
-
-            // Only update the session access_token if the request
-            // was sent to the api server and its returned an new access_token
-            if ( refreshedAccessToken ) {
-                AuthService.setSessionData('access_token', refreshedAccessToken)
-            }
-        };
-
-        this.request = function (request)
-        {
-            setRequestAccessToken(request, getRequestAccessToken());
-
-            return request;
-        };
-
-        this.response = function (response)
-        {
-            setResponseAccessToken(getResponseAccessToken(response));
-
-            return response;
-        };
-
-        this.responseError = function (rejection)
-        {
-            setResponseAccessToken(getResponseAccessToken(rejection));
-
-            return $q.reject(rejection);
-        };
-
-        return this;
-    }
-]);
-
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Authentication Service
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.service('AuthService', [
-    '$http',
-    function ($http)
+    '$q', '$http',
+    function ($q, $http)
     {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
         var self = this;
-        var apiRequestUrl = api_url('auth');
-        var fillableSessionData = ['access_token', 'user', 'authenticated'];
 
-        this.getUser = function ()
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('auth');
+
+        /**
+         * Fillable authentication session data.
+         *
+         * @type array
+         */
+        self.fillableSessionData = ['access_token', 'user', 'authenticated'];
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
+        self.httpService = $http;
+
+        /**
+         * Makes the request for the user authentication.
+         *
+         * @param  object credentials
+         * @return Angular promise
+         */
+        self.authenticate = function (credentials)
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.post(self.requestUrl, credentials).then(
+                function (response)
+                {
+                    self.setSessionData(angular.extend(response.data, {authenticated: true}));
+
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    self.clearSessionData();
+
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for the user unauthentication.
+         *
+         * @return Angular promise
+         */
+        self.unAuthenticate = function ()
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.delete(self.requestUrl).then(
+                function (response)
+                {
+                    self.clearSessionData();
+
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    self.clearSessionData();
+
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Check if user is authenticated by getting the
+         * authenticated key on the local storage.
+         *
+         * @return bool
+         */
+        self.isAuthenticated = function () {
+            return self.getSessionData('authenticated') || false;
+        };
+
+        /**
+         * Get user data from local storage.
+         *
+         * @return object
+         */
+        self.getUser = function ()
         {
             return angular.fromJson(self.getSessionData('user'));
         };
 
-        this.isAuthenticated = function () {
-            return self.getSessionData('authenticated') || false;
-        };
-
-        this.authenticate = function (credentials, callbacks)
-        {
-            var callbacks = callbacks || {};
-            var promises = {
-                success: function (response)
-                {
-                    self.succeededLogin(response, callbacks);
-                },
-                error: function (response)
-                {
-                    self.failedLogin(response, callbacks);
-                },
-            };
-
-            $http.post(apiRequestUrl, credentials).then(promises.success, promises.error);
-        }
-
-        this.succeededLogin = function (response, callbacks)
-        {
-            angular.extend(response.data, {authenticated: true});
-
-            self.setSessionData(response.data);
-
-            if ( callbacks.success ) callbacks.success(response);
-        }
-
-        this.failedLogin = function (response, callbacks)
-        {
-            self.clearSessionData();
-
-            if ( callbacks.error ) callbacks.error(response);
-        }
-
-        this.unAuthenticate = function (callbacks)
-        {
-            var callbacks = callbacks || {};
-            var promises = {
-                success: function (response)
-                {
-                    self.succeededLogout(response, callbacks);
-                },
-                error: function (response)
-                {
-                    self.failedLogout(response, callbacks);
-                }
-            };
-
-            $http.delete(apiRequestUrl).then(promises.success, promises.error);
-        }
-
-        this.succeededLogout = function (response, callbacks)
-        {
-            self.clearSessionData();
-
-            if ( callbacks.success ) callbacks.success(response);
-        }
-
-        this.failedLogout = function (response, callbacks)
-        {
-            self.clearSessionData();
-
-            if ( callbacks.error ) callbacks.error(response);
-        }
-
-
-        this.getSessionData = function (name)
+        /**
+         * Get authentication session data from local storage by its name.
+         *
+         * @param  string name
+         * @return string|null
+         */
+        self.getSessionData = function (name)
         {
             if ( typeof name == 'undefined' ) {
                 var data = {};
 
-                fillableSessionData.forEach(function (value, key) {
+                self.fillableSessionData.forEach(function (value, key) {
                     if ( localStorage.getItem(value) ) {
                         data[value] = localStorage.getItem(value);
                     }
@@ -1259,20 +1330,27 @@ authModule.service('AuthService', [
                 return data;
             }
 
-            if ( fillableSessionData.indexOf(name) > -1 ) {
+            if ( self.fillableSessionData.indexOf(name) > -1 ) {
                 return localStorage.getItem(name);
             }
 
             return null;
-        }
+        };
 
-        this.setSessionData = function (name, value)
+        /**
+         * Set authentication session data on local storage.
+         *
+         * @param  string name
+         * @param  mixed  value
+         * @return string|null
+         */
+        self.setSessionData = function (name, value)
         {
             var key, value, data = {};
 
             if ( typeof name == 'object' ) {
                 for (key in name) {
-                    if ( fillableSessionData.indexOf(key) > -1 ) {
+                    if ( self.fillableSessionData.indexOf(key) > -1 ) {
                         data[key] = name[key];
                         value = (typeof name[key] == 'object') ? angular.toJson(name[key]) :
                            (key == 'access_token') ? 'Bearer ' + name[key] : name[key];
@@ -1284,7 +1362,7 @@ authModule.service('AuthService', [
                 return data;
             }
 
-            if ( fillableSessionData.indexOf(name) > -1 ) {
+            if ( self.fillableSessionData.indexOf(name) > -1 ) {
                 data[name] = value;
 
                 localStorage.setItem(name, value);
@@ -1293,167 +1371,453 @@ authModule.service('AuthService', [
             }
 
             return null;
-        }
+        };
 
-        this.clearSessionData = function (name)
+        /**
+         * Remove the authentication session data from local storage by its name.
+         *
+         * @param  string name
+         * @return bool|void
+         */
+        self.clearSessionData = function (name)
         {
-            if ( fillableSessionData.indexOf(name) > -1 ) {
+            if ( self.fillableSessionData.indexOf(name) > -1 ) {
                 localStorage.removeItem(name);
                 return true;
             }
 
-            fillableSessionData.forEach(function (value, key) {
+            self.fillableSessionData.forEach(function (value, key) {
                 localStorage.removeItem(value);
             });
-        }
+        };
     }
 ]);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Forgot Password Service
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.service('ForgotPasswordService', [
-    '$http',
-    function ($http)
+    '$q', '$http',
+    function ($q, $http)
     {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
         var self = this;
-        var apiRequestUrl = api_url('auth/reset');
 
-        this.sendResetLinkEmail = function (email, callbacks)
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('auth/reset');
+
+        /**
+         * URL to reset password.
+         * @type string
+         */
+        self.resetPasswordURL = url('#!/reset/{token}');
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
+        self.httpService = $http;
+
+        /**
+         * Makes the request for send reset link e-mail.
+         *
+         * @param  string email
+         * @return Angular promise
+         */
+        self.sendResetLinkEmail = function (email)
         {
-            var callbacks = callbacks || {};
-            var data = {email: email, route: url('#!/reset/{token}')};
-            var promises = {
-                success: function (response)
-                {
-                    //
+            var deferredPromise = self.qService.defer();
+            var data = {email: email, route: self.resetPasswordURL};
 
-                    if ( callbacks.success ) callbacks.success(response);
+            self.httpService.post(self.requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
                 },
-                error: function (response)
+                function (response)
                 {
-                    //
-
-                    if ( callbacks.error ) callbacks.error(response);
+                    deferredPromise.reject(response);
                 }
-            };
+            );
 
-            $http.post(apiRequestUrl, data).then(promises.success, promises.error);
-        }
+            return deferredPromise.promise;
+        };
     }
 ]);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| (HTTP Interceptor) Refresh Authorization Header Service
+|--------------------------------------------------------------------------
+|
+*/
+
+authModule.factory('RefreshAuthorizationHeaderService', [
+    '$q', '$injector',
+    function ($q, $injector)
+    {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
+        var self = this;
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * Get the user access token.
+         *
+         * @return string
+         */
+        self.getRequestAccessToken = function ()
+        {
+            var AuthService = $injector.get('AuthService')
+            var accessToken = AuthService.getSessionData('access_token');
+
+            return accessToken;
+        };
+
+        /**
+         * Set the user access token to the request.
+         *
+         * @param object request
+         * @param string accessToken
+         */
+        self.setRequestAccessToken = function (request, accessToken)
+        {
+            request.headers.Authorization = accessToken;
+        };
+
+        /**
+         * Get the newly refreshed access token from the API response.
+         *
+         * @param  object responseORrejection
+         * @return string
+         */
+        self.getResponseAccessToken = function (responseORrejection)
+        {
+            // Get the refreshed access_token on Authorization header
+            var refreshedAccessToken = responseORrejection.headers('Authorization');
+
+            return refreshedAccessToken;
+        };
+
+        /**
+         * Set the newly refreshed access token to the user session.
+         *
+         * @param string refreshedAccessToken
+         */
+        self.setResponseAccessToken = function (refreshedAccessToken)
+        {
+            var AuthService = $injector.get('AuthService')
+
+            // Only update the session access_token if the request
+            // was sent to the api server and its returned an new access_token
+            if ( refreshedAccessToken ) {
+                AuthService.setSessionData('access_token', refreshedAccessToken)
+            }
+        };
+
+        /**
+         * Succeeded requests interceptor.
+         *
+         * @param  object request
+         * @return object
+         */
+        self.request = function (request)
+        {
+            self.setRequestAccessToken(request, self.getRequestAccessToken());
+
+            return request;
+        };
+
+        /**
+         * Succeeded responses interceptor.
+         *
+         * @param  object response
+         * @return object
+         */
+        self.response = function (response)
+        {
+            self.setResponseAccessToken(self.getResponseAccessToken(response));
+
+            return response;
+        };
+
+        /**
+         * Failed responses interceptor.
+         *
+         * @param  object rejection
+         * @return Rejected Angular promise
+         */
+        self.responseError = function (rejection)
+        {
+            self.setResponseAccessToken(self.getResponseAccessToken(rejection));
+
+            return self.qService.reject(rejection);
+        };
+
+        return self;
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Reset Password Service
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.service('ResetPasswordService', [
-    '$http', 'AuthService',
-    function ($http, AuthService)
+    '$q', '$http', 'AuthService',
+    function ($q, $http, AuthService)
     {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
         var self = this;
-        var apiRequestUrl = api_url('auth/reset');
 
-        this.resetPassword = function (credentials, callbacks)
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('auth/reset');
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
+        self.httpService = $http;
+
+        /**
+         * Makes the request for reset password.
+         *
+         * @param  object credentials
+         * @return Angular promise
+         */
+        self.resetPassword = function (credentials)
         {
-            var callbacks = callbacks || {};
-            var promises = {
-                success: function (response)
-                {
-                    AuthService.succeededLogin(response, {});
+            var deferredPromise = self.qService.defer();
 
-                    if ( callbacks.success ) callbacks.success(response);
+            self.httpService.put(self.requestUrl, credentials).then(
+                function (response)
+                {
+                    AuthService.setSessionData(angular.extend(response.data, {authenticated: true}));
+
+                    deferredPromise.resolve(response);
                 },
-                error: function (response)
+                function (response)
                 {
-                    //
-
-                    if ( callbacks.error ) callbacks.error(response);
+                    deferredPromise.reject(response);
                 }
-            };
+            );
 
-            $http.put(apiRequestUrl, credentials).then(promises.success, promises.error);
-        }
+            return deferredPromise.promise;
+        };
     }
 ]);
 
-'use strict';
-
-authModule.controller('LoginController', [
-    '$scope', '$state', 'AuthService',
-    function ($scope, $state, AuthService)
-    {
-        $scope.credentials = {};
-
-        $scope.authenticate = function ()
-        {
-            AuthService.authenticate($scope.credentials, {
-                success: function (response)
-                {
-                    notify('Login efetuado com sucesso!', 'success');
-
-                    $state.go('dashboard');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            });
-        }
-    },
-]);
-
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Define Controller For The "Forgot Password"
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.controller('ForgotPasswordController', [
     '$scope', 'ForgotPasswordService',
     function ($scope, ForgotPasswordService)
     {
-        $scope.sendResetLinkEmail = function ()
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * User email.
+         *
+         * @type string
+         */
+        self.email = '';
+
+        /**
+         * Send the request for send reset link e-mail.
+         *
+         * @return void
+         */
+        self.sendResetLinkEmail = function ()
         {
-            ForgotPasswordService.sendResetLinkEmail($scope.email, {
-                success: function (response)
+            ForgotPasswordService.sendResetLinkEmail(self.email).then(
+                function (response)
                 {
                     notify('Nós enviamos à você um link para a recuperação de senha. Cheque sua caixa de entrada!', 'success');
                 },
-                error: function (response)
+                function (response)
                 {
                     show_messages(response.data, 'error');
-                },
-            });
-        }
-    },
+                }
+            );
+        };
+    }
 ]);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Define Controller For Login
+|--------------------------------------------------------------------------
+|
+*/
+
+authModule.controller('LoginController', [
+    '$scope', '$state', 'AuthService',
+    function ($scope, $state, AuthService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * User credentials.
+         *
+         * @type object
+         */
+        self.credentials = {};
+
+        /**
+         * Send the request for the user authentication.
+         *
+         * @return void
+         */
+        self.authenticate = function ()
+        {
+            AuthService.authenticate(self.credentials).then(
+                function (response)
+                {
+                    notify('Login efetuado com sucesso!', 'success');
+
+                    $state.go('dashboard');
+                },
+                function (response)
+                {
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Define Controller For Reset Password
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.controller('ResetPasswordController', [
     '$scope', '$state', '$stateParams', 'ResetPasswordService',
     function ($scope, $state, $stateParams, ResetPasswordService)
     {
-        $scope.credentials = {};
-        $scope.credentials.token = $stateParams.token;
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.resetPassword = function ()
+        /**
+         * User credentials.
+         *
+         * @type object
+         */
+        self.credentials = {};
+
+        /**
+         * Route token.
+         *
+         * @type string
+         */
+        self.credentials.token = $stateParams.token;
+
+        /**
+         * Send the request for reset password.
+         *
+         * @return void
+         */
+        self.resetPassword = function ()
         {
-            ResetPasswordService.resetPassword($scope.credentials, {
-                success: function (response)
+            ResetPasswordService.resetPassword(self.credentials).then(
+                function (response)
                 {
                     notify('Sua senha foi recuperada com sucesso!', 'success');
 
                     $state.go('dashboard');
                 },
-                error: function (response)
+                function (response)
                 {
                     show_messages(response.data, 'error');
-                },
-            });
-        }
+                }
+            );
+        };
     },
 ]);
 
-'use strict';
-
+/**
+ * Define the root dashboard module.
+ *
+ * @type object
+ */
 var rootDashboardModule = angular.module('root-dashboard', ['ui.router', 'auth']);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Main Root Dashboard Configuration Setup
+|--------------------------------------------------------------------------
+|
+| Set up the HTTP interceptors and other main configurations.
+|
+*/
 
 rootDashboardModule.config([
     '$httpProvider',
@@ -1467,7 +1831,11 @@ rootDashboardModule.run([
     '$transitions', '$injector',
     function ($transitions, $injector)
     {
-        $transitions.onStart({}, function(trans)
+        /*
+        | Policie for checking if user is authenticated
+        | to access the root dashboard and its child states.
+         */
+        $transitions.onStart({}, function (trans)
         {
             var toState = trans.to();
             var toStateBelongsToRootDashboardState = toState.parent == 'root-dashboard';
@@ -1481,560 +1849,1449 @@ rootDashboardModule.run([
     }
 ]);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For The Root Dashboard
+|--------------------------------------------------------------------------
+|
+*/
 
 rootDashboardModule.controller('RootDashboardController', [
     '$scope', '$state', 'AuthService',
     function ($scope, $state, AuthService)
     {
-        // Initializes the layout controls
-        window.layoutInit();
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.auth_user = AuthService.getUser();
+        /**
+         * Authenticated user.
+         *
+         * @type object
+         */
+        self.authUser = AuthService.getUser();
 
-        $scope.logout = function ()
+        /**
+         * Log user out of the application.
+         *
+         * @return void
+         */
+        self.logout = function ()
         {
-            AuthService.unAuthenticate({
-                success: function (response)
+            AuthService.unAuthenticate().then(
+                function (response)
                 {
                     notify('Logout efetuado com sucesso!', 'success');
 
                     $state.go('login');
                 }
-            });
+            );
         };
-    },
+
+        // Initializes the layout scripts
+        window.layoutInit();
+    }
 ]);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| (HTTP Interceptor) Authorization Http Interceptor Service
+|--------------------------------------------------------------------------
+|
+*/
 
 rootDashboardModule.factory('AuthorizationHttpInterceptorService', [
     '$q', '$state',
     function ($q, $state)
     {
-        this.responseError = function (rejection)
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
+        var self = this;
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * State service.
+         *
+         * @type object
+         */
+        self.stateService = $state;
+
+        /**
+         * Failed responses interceptor.
+         *
+         * @param  object rejection
+         * @return Rejected Angular promise
+         */
+        self.responseError = function (rejection)
         {
             var status = rejection.status;
 
+            // Check if the response was sent with Unauthorized status
             if ( status == 401 ) {
                 notify('Sua sessão foi finalizada. você precisa fazer login novamente.', 'info', 10000);
-                $state.go('login');
+                self.stateService.go('login');
             }
 
-            return $q.reject(rejection);
+            return self.qService.reject(rejection);
         };
 
-        return this;
+        return self;
     }
 ]);
 
-'use strict';
-
+/**
+ * Define the dashboard module.
+ *
+ * @type object
+ */
 var dashboardModule = angular.module('dashboard', []);
 
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For The Dashboard
+|--------------------------------------------------------------------------
+|
+*/
 
 dashboardModule.controller('DashboardController', [
     '$scope',
     function ($scope)
     {
+        /**
+         * This controller scope.
+         */
+        var self = $scope;
+
         //
-    },
-]);
-
-'use strict';
-
-var usersModule = angular.module('users', ['ngMessages', 'ui.router']);
-
-'use strict';
-
-usersModule.controller('UsersListController', [
-    '$scope', '$http',
-    function ($scope, $http)
-    {
-        $scope.getUsers = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.users = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.get(api_url('admin/users')).then(promises.success, promises.error);
-        };
-
-        $scope.getUsers();
     }
 ]);
 
-'use strict';
-
-usersModule.controller('UsersRegisterController', [
-    '$scope', '$http',
-    function ($scope, $http)
-    {
-        $scope.user = {};
-
-        $scope.store = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.user = {};
-
-                    notify('Usuário registrado com sucesso!.', 'success');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.post(api_url('admin/users'), $scope.user).then(promises.success, promises.error);
-        };
-    }
-]);
-
-'use strict';
-
-usersModule.controller('UsersProfileController', [
-    '$scope', '$http', '$state', '$stateParams', 'AuthService',
-    function ($scope, $http, $state, $stateParams, AuthService)
-    {
-        $scope.user = {};
-        $scope.authUser = AuthService.getUser();
-
-        $scope.getUser = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.user = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.get(api_url('admin/users/' + $stateParams.id)).then(promises.success, promises.error);
-        };
-
-        $scope.update = function ()
-        {
-            $scope.user = clearEmptyData($scope.user);
-
-            var promises = {
-                success: function (response)
-                {
-                    notify('Perfil atualizado com sucesso!', 'success');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.put(api_url('admin/users/' + $scope.user.id), $scope.user).then(promises.success, promises.error);
-        };
-
-        $scope.delete = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    if ( $scope.authUser.id == $scope.user.id ) {
-                        AuthService.unAuthenticate();
-
-                        notify('Sua conta foi deletada com sucesso!', 'success');
-                        $state.go('login');
-
-                        return;
-                    }
-
-                    notify('Usuário deletado com sucesso!', 'success');
-                    $state.go('users-list');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.delete(api_url('admin/users/' + $scope.user.id)).then(promises.success, promises.error);
-        };
-
-        var clearEmptyData = function (data)
-        {
-            if ( data instanceof Object ) {
-                for (key in data) {
-                    if ( ! data[key] ) delete data[key];
-                }
-            }
-
-            return data;
-        }
-
-        $scope.getUser();
-    }
-]);
-
-'use strict';
-
-var tagsModule = angular.module('tags', ['ngMessages', 'ui.router']);
-
-'use strict';
-
-tagsModule.controller('TagsListController', [
-    '$scope', '$http',
-    function ($scope, $http)
-    {
-        $scope.getTags = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.tags = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.get(api_url('admin/tags')).then(promises.success, promises.error);
-        };
-
-        $scope.getTags();
-    }
-]);
-
-'use strict';
-
-tagsModule.controller('TagsCreateController', [
-    '$scope', '$http',
-    function ($scope, $http)
-    {
-        $scope.tag = {};
-
-        $scope.store = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.tag = {};
-
-                    notify('Tag cadastrada com sucesso!.', 'success');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.post(api_url('admin/tags'), $scope.tag).then(promises.success, promises.error);
-        }
-    }
-]);
-
-'use strict';
-
-tagsModule.controller('TagsUpdateController', [
-    '$scope', '$http', '$state', '$stateParams', 'AuthService',
-    function ($scope, $http, $state, $stateParams, AuthService)
-    {
-        $scope.tag = {};
-
-        $scope.getTag = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.tag = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.get(api_url('admin/tags/' + $stateParams.id)).then(promises.success, promises.error);
-        };
-
-        $scope.update = function ()
-        {
-            $scope.tag = clearEmptyData($scope.tag);
-
-            var promises = {
-                success: function (response)
-                {
-                    notify('Tag atualizada com sucesso!', 'success');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.put(api_url('admin/tags/' + $scope.tag.id), $scope.tag).then(promises.success, promises.error);
-        };
-
-        $scope.delete = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    notify('Tag deletada com sucesso!', 'success');
-                    $state.go('tags-list');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.delete(api_url('admin/tags/' + $scope.tag.id)).then(promises.success, promises.error);
-        };
-
-        var clearEmptyData = function (data)
-        {
-            if ( data instanceof Object ) {
-                for (key in data) {
-                    if ( ! data[key] ) delete data[key];
-                }
-            }
-
-            return data;
-        }
-
-        $scope.getTag();
-    }
-]);
-
-'use strict';
-
-var categoriesModule = angular.module('categories', ['ngMessages', 'ui.router']);
-
-'use strict';
-
-categoriesModule.controller('CategoriesListController', [
-    '$scope', '$http',
-    function ($scope, $http)
-    {
-        $scope.getCategories = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.categories = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.get(api_url('admin/categories')).then(promises.success, promises.error);
-        };
-
-        $scope.getCategories();
-    }
-]);
-
-'use strict';
-
-categoriesModule.controller('CategoriesCreateController', [
-    '$scope', '$http',
-    function ($scope, $http)
-    {
-        $scope.category = {};
-
-        $scope.store = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.category = {};
-
-                    notify('Categoria cadastrada com sucesso!', 'success');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.post(api_url('admin/categories'), $scope.category).then(promises.success, promises.error);
-        }
-    }
-]);
-
-'use strict';
-
-categoriesModule.controller('CategoriesUpdateController', [
-    '$scope', '$http', '$state', '$stateParams',
-    function ($scope, $http, $state, $stateParams)
-    {
-        $scope.category = {};
-
-        $scope.getCategory = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.category = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.get(api_url('admin/categories/' + $stateParams.id)).then(promises.success, promises.error);
-        };
-
-        $scope.update = function ()
-        {
-            $scope.category = clearEmptyData($scope.category);
-
-            var promises = {
-                success: function (response)
-                {
-                    notify('Categoria atualizada com sucesso!', 'success');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.put(api_url('admin/categories/' + $scope.category.id), $scope.category).then(promises.success, promises.error);
-        };
-
-        $scope.delete = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    notify('Categoria deletada com sucesso!', 'success');
-                    $state.go('categories-list');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.delete(api_url('admin/categories/' + $scope.category.id)).then(promises.success, promises.error);
-        };
-
-        var clearEmptyData = function (data)
-        {
-            if ( data instanceof Object ) {
-                for (key in data) {
-                    if ( ! data[key] ) delete data[key];
-                }
-            }
-
-            return data;
-        }
-
-        $scope.getCategory();
-    }
-]);
-
-
-var articlesModule = angular.module('articles', ['ngMessages', 'ui.router']);
-
-
-articlesModule.service('ArticlesService', [
+/**
+ * Define the users module.
+ *
+ * @type object
+ */
+var usersModule = angular.module('users', ['ngMessages', 'ui.router', 'auth']);
+
+/*
+|--------------------------------------------------------------------------
+| Main Users Service
+|--------------------------------------------------------------------------
+|
+*/
+
+usersModule.service('UsersService', [
     '$q', '$http',
     function ($q, $http)
     {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
         var self = this;
-        self.requestUrl = api_url('admin/articles');
+
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('admin/users');
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
         self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
         self.httpService = $http;
 
         /**
-         * Get all articles.
+         * Makes the request for get all users on the API.
          *
          * @return Angular promise
          */
         self.all = function ()
         {
-            var qDeferred = self.qService.defer();
+            var deferredPromise = self.qService.defer();
 
             self.httpService.get(self.requestUrl).then(
                 function (response)
                 {
-                    qDeferred.resolve(response);
+                    deferredPromise.resolve(response);
                 },
                 function (response)
                 {
-                    qDeferred.reject(response);
+                    deferredPromise.reject(response);
                 }
             );
 
-            return qDeferred.promise;
-        }
+            return deferredPromise.promise;
+        };
 
         /**
-         * Find an specific article.
+         * Makes the request for get an specific user on the API.
          *
          * @param  number id
          * @return Angular promise
          */
         self.find = function (id)
         {
-            var qDeferred = self.qService.defer();
+            var deferredPromise = self.qService.defer();
             var requestUrl = self.requestUrl + '/' + id;
 
             self.httpService.get(requestUrl).then(
                 function (response)
                 {
-                    qDeferred.resolve(response);
+                    deferredPromise.resolve(response);
                 },
                 function (response)
                 {
-                    qDeferred.reject(response);
+                    deferredPromise.reject(response);
                 }
             );
 
-            return qDeferred.promise;
+            return deferredPromise.promise;
         }
 
         /**
-         * Stores the article.
+         * Makes the request for store a newly registered users on the API.
          *
          * @param  object data
          * @return Angular promise
          */
         self.store = function (data)
         {
-            var qDeferred = self.qService.defer();
+            var deferredPromise = self.qService.defer();
 
             self.httpService.post(self.requestUrl, data).then(
                 function (response)
                 {
-                    qDeferred.resolve(response);
+                    deferredPromise.resolve(response);
                 },
                 function (response)
                 {
-                    qDeferred.reject(response);
+                    deferredPromise.reject(response);
                 }
             );
 
-            return qDeferred.promise;
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for update user on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.update = function (data)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + data.id;
+
+            self.httpService.put(requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for delete user on the API.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.destroy = function (id)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.delete(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        }
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Users List
+|--------------------------------------------------------------------------
+|
+*/
+
+usersModule.controller('UsersListController', [
+    '$scope', 'UsersService',
+    function ($scope, UsersService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * All users.
+         *
+         * @type array
+         */
+        self.users = [];
+
+        /**
+         * Send the request to get all users.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            UsersService.all().then(
+                function (response)
+                {
+                    self.users = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter os usuários!', 'error');
+                }
+            );
+        };
+
+        self.getAll();
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Users Profile
+|--------------------------------------------------------------------------
+|
+*/
+
+usersModule.controller('UsersProfileController', [
+    '$scope', '$q', '$state', '$stateParams', 'UsersService', 'AuthService',
+    function ($scope, $q, $state, $stateParams, UsersService, AuthService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Request user id.
+         *
+         * @type number
+         */
+        self.id = $stateParams.id;
+
+        /**
+         * Requested user.
+         *
+         * @type object
+         */
+        self.user = {};
+
+        /**
+         * Authenticated user.
+         *
+         * @type object
+         */
+        self.authUser = AuthService.getUser();
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * Send the request to the user update.
+         *
+         * @return void
+         */
+        self.update = function ()
+        {
+            self.user = self.removeEmptyData(self.user);
+
+            UsersService.update(self.user).then(
+                function (response)
+                {
+                    notify('Perfil atualizado com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível salvar as alterações do usuário!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the request for the user delete.
+         *
+         * @return void
+         */
+        self.destroy = function ()
+        {
+            UsersService.destroy(self.id).then(
+                function (response)
+                {
+                    if ( self.authUser.id == self.user.id ) {
+                        AuthService.unAuthenticate();
+
+                        notify('Sua conta foi deletada com sucesso!', 'success');
+
+                        return $state.go('login');
+                    }
+
+                    notify('Usuário deletado com sucesso!', 'success');
+
+                    $state.go('users-list');
+                },
+                function (response)
+                {
+                    notify('Não foi possível deletar o perfil do usuário!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the requests to get data needed by the view.
+         *
+         * @return void
+         */
+        self.getViewData = function ()
+        {
+            var usersPromise = UsersService.find(self.id);
+
+            var callbacks = {
+                success: function (response)
+                {
+                    self.user = response[0].data;
+                },
+                error: function (response)
+                {
+                   notify('Não foi possível obter os dados necessários para a edição!', 'error');
+                }
+            };
+
+            self.qService.all([usersPromise]).then(callbacks.success).catch(callbacks.error);
+        };
+
+        /**
+         * Removes empty keys from data object.
+         *
+         * @param  object data
+         * @return object
+         */
+        self.removeEmptyData = function (data)
+        {
+            if ( data instanceof Object ) {
+                for (key in data) {
+                    if ( ! data[key] ) delete data[key];
+                }
+            }
+
+            return data;
+        };
+
+        self.getViewData();
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Users Register
+|--------------------------------------------------------------------------
+|
+*/
+
+usersModule.controller('UsersRegisterController', [
+    '$scope', 'UsersService',
+    function ($scope, UsersService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * User to be filled.
+         *
+         * @type object
+         */
+        self.user = {};
+
+        /**
+         * Send a request for store a newly registered user.
+         *
+         * @return void
+         */
+        self.store = function ()
+        {
+            UsersService.store(self.user).then(
+                function (response)
+                {
+                    self.user = {};
+
+                    notify('Usuário registrado com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível registrar o usuário!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+    }
+]);
+
+/**
+ * Define the tags module.
+ *
+ * @type object
+ */
+var tagsModule = angular.module('tags', ['ngMessages', 'ui.router']);
+
+/*
+|--------------------------------------------------------------------------
+| Main Tags Service
+|--------------------------------------------------------------------------
+|
+*/
+
+tagsModule.service('TagsService', [
+    '$q', '$http',
+    function ($q, $http)
+    {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
+        var self = this;
+
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('admin/tags');
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
+        self.httpService = $http;
+
+        /**
+         * Makes the request for get all tags on the API.
+         *
+         * @return Angular promise
+         */
+        self.all = function ()
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.get(self.requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for get an specific tag on the API.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.find = function (id)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.get(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
         }
 
         /**
-         * Update an article.
+         * Makes the request for store a newly created tag on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.store = function (data)
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.post(self.requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for update tag on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.update = function (data)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + data.id;
+
+            self.httpService.put(requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for delete tag on the API.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.destroy = function (id)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.delete(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        }
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Tags Create
+|--------------------------------------------------------------------------
+|
+*/
+
+tagsModule.controller('TagsCreateController', [
+    '$scope', 'TagsService',
+    function ($scope, TagsService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Tag to be filled.
+         *
+         * @type object
+         */
+        self.tag = {};
+
+        /**
+         * Send a request for store a newly created tag.
+         *
+         * @return void
+         */
+        self.store = function ()
+        {
+            TagsService.store(self.tag).then(
+                function (response)
+                {
+                    self.tag = {};
+
+                    notify('Tag cadastrada com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível cadastrar a tag!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        }
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Tags List
+|--------------------------------------------------------------------------
+|
+*/
+
+tagsModule.controller('TagsListController', [
+    '$scope', 'TagsService',
+    function ($scope, TagsService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * All tags.
+         *
+         * @type array
+         */
+        self.tags = [];
+
+        /**
+         * Send the request to get all tags.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            TagsService.all().then(
+                function (response)
+                {
+                    self.tags = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter as tags!', 'error');
+                }
+            );
+        };
+
+        self.getAll();
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Tags Update
+|--------------------------------------------------------------------------
+|
+*/
+
+tagsModule.controller('TagsUpdateController', [
+    '$scope', '$q', '$state', '$stateParams', 'TagsService',
+    function ($scope, $q, $state, $stateParams, TagsService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Request tag id.
+         *
+         * @type number
+         */
+        self.id = $stateParams.id;
+
+        /**
+         * Requested tag.
+         *
+         * @type object
+         */
+        self.tag = {};
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * Send the request to the tag update.
+         *
+         * @return void
+         */
+        self.update = function ()
+        {
+            self.tag = self.removeEmptyData(self.tag);
+
+            TagsService.update(self.tag).then(
+                function (response)
+                {
+                    notify('Tag editada com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível salvar as alterações da tag!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the request for the tag delete.
+         *
+         * @return void
+         */
+        self.destroy = function ()
+        {
+            TagsService.destroy(self.id).then(
+                function (response)
+                {
+                    notify('Tag deletada com sucesso!', 'success');
+
+                    $state.go('categories-list');
+                },
+                function (response)
+                {
+                    notify('Não foi possível deletar a tag!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the requests to get data needed by the view.
+         *
+         * @return void
+         */
+        self.getViewData = function ()
+        {
+            var tagPromise = TagsService.find(self.id);
+
+            var callbacks = {
+                success: function (response)
+                {
+                    self.tag = response[0].data;
+                },
+                error: function (response)
+                {
+                   notify('Não foi possível obter os dados necessários para a edição!', 'error');
+                }
+            };
+
+            self.qService.all([tagPromise]).then(callbacks.success).catch(callbacks.error);
+        };
+
+        /**
+         * Removes empty keys from data object.
+         *
+         * @param  object data
+         * @return object
+         */
+        self.removeEmptyData = function (data)
+        {
+            if ( data instanceof Object ) {
+                for (key in data) {
+                    if ( ! data[key] ) delete data[key];
+                }
+            }
+
+            return data;
+        };
+
+        self.getViewData();
+    }
+]);
+
+/**
+ * Define the categories module.
+ *
+ * @type object
+ */
+var categoriesModule = angular.module('categories', ['ngMessages', 'ui.router']);
+
+/*
+|--------------------------------------------------------------------------
+| Main Categories Service
+|--------------------------------------------------------------------------
+|
+*/
+
+categoriesModule.service('CategoriesService', [
+    '$q', '$http',
+    function ($q, $http)
+    {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
+        var self = this;
+
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('admin/categories');
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
+        self.httpService = $http;
+
+        /**
+         * Makes the request for get all categories on the API.
+         *
+         * @return Angular promise
+         */
+        self.all = function ()
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.get(self.requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for get an specific category on the API.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.find = function (id)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.get(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        }
+
+        /**
+         * Makes the request for store a newly created category on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.store = function (data)
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.post(self.requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for update category on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.update = function (data)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + data.id;
+
+            self.httpService.put(requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for delete category on the API.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.destroy = function (id)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.delete(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        }
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Categories Create
+|--------------------------------------------------------------------------
+|
+*/
+
+categoriesModule.controller('CategoriesCreateController', [
+    '$scope', 'CategoriesService',
+    function ($scope, CategoriesService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Category to be filled.
+         *
+         * @type object
+         */
+        self.category = {};
+
+        /**
+         * Send a request for store a newly created category.
+         *
+         * @return void
+         */
+        self.store = function ()
+        {
+            CategoriesService.store(self.category).then(
+                function (response)
+                {
+                    self.category = {};
+
+                    notify('Categoria cadastrada com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível cadastrar a categoria!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Categories List
+|--------------------------------------------------------------------------
+|
+*/
+
+categoriesModule.controller('CategoriesListController', [
+    '$scope', 'CategoriesService',
+    function ($scope, CategoriesService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * All categories.
+         *
+         * @type array
+         */
+        self.categories = [];
+
+        /**
+         * Send the request to get all categories.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            CategoriesService.all().then(
+                function (response)
+                {
+                    self.categories = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter as categorias!', 'error');
+                }
+            );
+        };
+
+        self.getAll();
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Categories Update
+|--------------------------------------------------------------------------
+|
+*/
+
+categoriesModule.controller('CategoriesUpdateController', [
+    '$scope', '$q', '$state', '$stateParams', 'CategoriesService',
+    function ($scope, $q, $state, $stateParams, CategoriesService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Request category id.
+         *
+         * @type number
+         */
+        self.id = $stateParams.id;
+
+        /**
+         * Requested category.
+         *
+         * @type object
+         */
+        self.category = {};
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * Send the request to the category update.
+         *
+         * @return void
+         */
+        self.update = function ()
+        {
+            self.category = self.removeEmptyData(self.category);
+
+            CategoriesService.update(self.category).then(
+                function (response)
+                {
+                    notify('Categoria editada com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível salvar as alterações da categoria!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the request for the category delete.
+         *
+         * @return void
+         */
+        self.destroy = function ()
+        {
+            CategoriesService.destroy(self.id).then(
+                function (response)
+                {
+                    notify('Categoria deletada com sucesso!', 'success');
+
+                    $state.go('categories-list');
+                },
+                function (response)
+                {
+                    notify('Não foi possível deletar a categoria!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the requests to get data needed by the view.
+         *
+         * @return void
+         */
+        self.getViewData = function ()
+        {
+            var categoryPromise = CategoriesService.find(self.id);
+
+            var callbacks = {
+                success: function (response)
+                {
+                    self.category = response[0].data;
+                },
+                error: function (response)
+                {
+                   notify('Não foi possível obter os dados necessários para a edição!', 'error');
+                }
+            };
+
+            self.qService.all([categoryPromise]).then(callbacks.success).catch(callbacks.error);
+        };
+
+        /**
+         * Removes empty keys from data object.
+         *
+         * @param  object data
+         * @return object
+         */
+        self.removeEmptyData = function (data)
+        {
+            if ( data instanceof Object ) {
+                for (key in data) {
+                    if ( ! data[key] ) delete data[key];
+                }
+            }
+
+            return data;
+        };
+
+        self.getViewData();
+    }
+]);
+
+/**
+ * Define the articles module.
+ *
+ * @type object
+ */
+var articlesModule = angular.module('articles', ['ngMessages', 'ui.router', 'categories', 'tags']);
+
+/*
+|--------------------------------------------------------------------------
+| Define The Main Articles Service
+|--------------------------------------------------------------------------
+|
+*/
+
+articlesModule.service('ArticlesService', [
+    '$q', '$http',
+    function ($q, $http)
+    {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
+        var self = this;
+
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('admin/articles');
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
+        self.httpService = $http;
+
+        /**
+         * Makes the request for get all articles.
+         *
+         * @return Angular promise
+         */
+        self.all = function ()
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.get(self.requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        }
+
+        /**
+         * Makes the request for get an specific article.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.find = function (id)
+        {
+            var deferredPromise = self.qService.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            self.httpService.get(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        }
+
+        /**
+         * Makes the request for store a newly created article on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.store = function (data)
+        {
+            var deferredPromise = self.qService.defer();
+
+            self.httpService.post(self.requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        }
+
+        /**
+         * Makes the request for update article on the API.
          *
          * @param  object data
          * @return Angular promise
@@ -2042,7 +3299,7 @@ articlesModule.service('ArticlesService', [
         self.update = function (data)
         {
             var article = angular.copy(data);
-            var qDeferred = self.qService.defer();
+            var deferredPromise = self.qService.defer();
             var requestUrl = self.requestUrl + '/' + data.id;
 
             article.tags = self.getIds(article.tags);
@@ -2051,40 +3308,40 @@ articlesModule.service('ArticlesService', [
             self.httpService.put(requestUrl, article).then(
                 function (response)
                 {
-                    qDeferred.resolve(response);
+                    deferredPromise.resolve(response);
                 },
                 function (response)
                 {
-                    qDeferred.reject(response);
+                    deferredPromise.reject(response);
                 }
             );
 
-            return qDeferred.promise;
+            return deferredPromise.promise;
         }
 
         /**
-         * Delete the article.
+         * Makes the request for delete article on the API.
          *
          * @param  number id
          * @return Angular promise
          */
         self.destroy = function (id)
         {
-            var qDeferred = self.qService.defer();
+            var deferredPromise = self.qService.defer();
             var requestUrl = self.requestUrl + '/' + id;
 
             self.httpService.delete(requestUrl).then(
                 function (response)
                 {
-                    qDeferred.resolve(response);
+                    deferredPromise.resolve(response);
                 },
                 function (response)
                 {
-                    qDeferred.reject(response);
+                    deferredPromise.reject(response);
                 }
             );
 
-            return qDeferred.promise;
+            return deferredPromise.promise;
         }
 
         /**
@@ -2106,59 +3363,64 @@ articlesModule.service('ArticlesService', [
     }
 ]);
 
-
-articlesModule.controller('ArticlesListController', [
-    '$scope', 'ArticlesService',
-    function ($scope, ArticlesService)
-    {
-        var self = $scope;
-        self.articles = [];
-
-        /**
-         * Get all articles.
-         *
-         * @return void
-         */
-        self.getAll = function ()
-        {
-            ArticlesService.all().then(
-                function (response)
-                {
-                    self.articles = response.data;
-                },
-                function (response)
-                {
-                    notify('Não foi possível obter a lista de artigos!', 'error');
-                }
-            );
-        };
-
-        self.getAll();
-    }
-]);
-
+/*
+|--------------------------------------------------------------------------
+| Define The Controller For Articles Create.
+|--------------------------------------------------------------------------
+|
+*/
 
 articlesModule.controller('ArticlesCreateController', [
-    '$scope', '$q', 'ArticlesService', '$http',
-    function ($scope, $q, ArticlesService, $http)
+    '$scope', '$q', 'ArticlesService', 'CategoriesService', 'TagsService',
+    function ($scope, $q, ArticlesService, CategoriesService, TagsService)
     {
-        self = $scope;
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Article to be filled.
+         *
+         * @type object
+         */
         self.article = {status: 1};
+
+        /**
+         * Tags to be filled for the view.
+         *
+         * @type array
+         */
         self.tags = [];
+
+        /**
+         * Categories to be filled for the view.
+         *
+         * @type array
+         */
         self.categories = [];
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
         self.qService = $q;
 
         /**
-         * Stores the article.
-         *
-         * @return void
-         */
+        * Send a request for store a newly created article.
+        *
+        * @return void
+        */
         self.store = function ()
         {
             ArticlesService.store(self.article).then(
                 function (response)
                 {
                     self.article = {status: 1};
+
                     notify('Artigo cadastrado com sucesso!', 'success');
                 },
                 function (response) {
@@ -2174,10 +3436,10 @@ articlesModule.controller('ArticlesCreateController', [
          */
         self.getViewData = function ()
         {
-            var categories = getData(api_url('admin/categories'));
+            var categoriesPromise = CategoriesService.all();
 
-            var tags = categories.then(function (response) {
-                return getData(api_url('admin/tags'));
+            var tagsPromise = categoriesPromise.then(function (response) {
+                return TagsService.all();
             });
 
             var callbacks = {
@@ -2192,46 +3454,116 @@ articlesModule.controller('ArticlesCreateController', [
                 }
             };
 
-            self.qService.all([categories, tags]).then(callbacks.success).catch(callbacks.error);
-        };
-
-        var getData = function (url)
-        {
-            var deferred = $q.defer();
-
-            var callbacks = {
-                success: function (response)
-                {
-                     deferred.resolve(response);
-                },
-                error: function (response)
-                {
-                    deferred.reject(response);
-                },
-            };
-            $http.get(url).then(callbacks.success, callbacks.error);
-
-            return deferred.promise;
+            self.qService.all([categoriesPromise, tagsPromise]).then(callbacks.success).catch(callbacks.error);
         };
 
         self.getViewData();
     }
 ]);
 
+/*
+|--------------------------------------------------------------------------
+| Define The Controller For Articles List.
+|--------------------------------------------------------------------------
+|
+*/
+
+articlesModule.controller('ArticlesListController', [
+    '$scope', 'ArticlesService',
+    function ($scope, ArticlesService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * All articles.
+         *
+         * @type array
+         */
+        self.articles = [];
+
+        /**
+         * Send the request to get all articles.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            ArticlesService.all().then(
+                function (response)
+                {
+                    self.articles = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter os artigos!', 'error');
+                }
+            );
+        };
+
+        self.getAll();
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Define The Controller For Articles Update.
+|--------------------------------------------------------------------------
+|
+*/
 
 articlesModule.controller('ArticlesUpdateController', [
-    '$scope', '$q', '$state', '$stateParams', 'ArticlesService', '$http',
-    function ($scope, $q, $state, $stateParams, ArticlesService, $http)
+    '$scope', '$q', '$state', '$stateParams', 'ArticlesService', 'CategoriesService', 'TagsService',
+    function ($scope, $q, $state, $stateParams, ArticlesService, CategoriesService, TagsService)
     {
-        self = $scope;
-        self.article = {};
-        self.tags = [];
-        self.categories = [];
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Request article id.
+         *
+         * @type number
+         */
         self.id = $stateParams.id;
+
+        /**
+         * Requested article.
+         *
+         * @type object
+         */
+        self.article = {};
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
         self.qService = $q;
 
         /**
-         * Updates the article.
+         * Tags to be filled for the view.
+         *
+         * @type array
+         */
+        self.tags = [];
+
+        /**
+         * Categories to be filled for the view.
+         *
+         * @type array
+         */
+        self.categories = [];
+
+        /**
+         * Send the request to the article update.
          *
          * @return void
          */
@@ -2245,12 +3577,13 @@ articlesModule.controller('ArticlesUpdateController', [
                 function (response)
                 {
                     notify('Não foi possível salvar as alterações do artigo!', 'error');
+                    show_messages(response.data, 'error');
                 }
             );
         };
 
         /**
-         * Delete the article.
+         * Send the request for the article delete.
          *
          * @return void
          */
@@ -2260,6 +3593,7 @@ articlesModule.controller('ArticlesUpdateController', [
                 function (response)
                 {
                     notify('Artigo deletado com sucesso!', 'success');
+
                     $state.go('articles-list');
                 },
                 function (response)
@@ -2270,20 +3604,20 @@ articlesModule.controller('ArticlesUpdateController', [
         };
 
         /**
-         * Get data needed by the view.
+         * Send the requests to get data needed by the view.
          *
          * @return void
          */
         self.getViewData = function ()
         {
-            var article = ArticlesService.find(self.id);
+            var articlePromise = ArticlesService.find(self.id);
 
-            var categories = article.then(function (response) {
-                return getData(api_url('admin/categories'));
-            })
+            var categoriesPromise = articlePromise.then(function (response) {
+                return CategoriesService.all();
+            });
 
-            var tags = categories.then(function (response) {
-                return getData(api_url('admin/tags'));
+            var tagsPromise = categoriesPromise.then(function (response) {
+                return TagsService.all();
             });
 
             var callbacks = {
@@ -2299,26 +3633,7 @@ articlesModule.controller('ArticlesUpdateController', [
                 }
             };
 
-            self.qService.all([article, categories, tags]).then(callbacks.success).catch(callbacks.error);
-        }
-
-        var getData = function (url)
-        {
-            var deferred = $q.defer();
-
-            var callbacks = {
-                success: function (response)
-                {
-                     deferred.resolve(response);
-                },
-                error: function (response)
-                {
-                    deferred.reject(response);
-                },
-            };
-            $http.get(url).then(callbacks.success, callbacks.error);
-
-            return deferred.promise;
+            self.qService.all([articlePromise, categoriesPromise, tagsPromise]).then(callbacks.success).catch(callbacks.error);
         };
 
         self.getViewData();

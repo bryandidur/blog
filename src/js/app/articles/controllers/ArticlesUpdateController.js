@@ -1,17 +1,58 @@
+/*
+|--------------------------------------------------------------------------
+| Define The Controller For Articles Update.
+|--------------------------------------------------------------------------
+|
+*/
 
 articlesModule.controller('ArticlesUpdateController', [
-    '$scope', '$q', '$state', '$stateParams', 'ArticlesService', '$http',
-    function ($scope, $q, $state, $stateParams, ArticlesService, $http)
+    '$scope', '$q', '$state', '$stateParams', 'ArticlesService', 'CategoriesService', 'TagsService',
+    function ($scope, $q, $state, $stateParams, ArticlesService, CategoriesService, TagsService)
     {
-        self = $scope;
-        self.article = {};
-        self.tags = [];
-        self.categories = [];
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Request article id.
+         *
+         * @type number
+         */
         self.id = $stateParams.id;
+
+        /**
+         * Requested article.
+         *
+         * @type object
+         */
+        self.article = {};
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
         self.qService = $q;
 
         /**
-         * Updates the article.
+         * Tags to be filled for the view.
+         *
+         * @type array
+         */
+        self.tags = [];
+
+        /**
+         * Categories to be filled for the view.
+         *
+         * @type array
+         */
+        self.categories = [];
+
+        /**
+         * Send the request to the article update.
          *
          * @return void
          */
@@ -25,12 +66,13 @@ articlesModule.controller('ArticlesUpdateController', [
                 function (response)
                 {
                     notify('Não foi possível salvar as alterações do artigo!', 'error');
+                    show_messages(response.data, 'error');
                 }
             );
         };
 
         /**
-         * Delete the article.
+         * Send the request for the article delete.
          *
          * @return void
          */
@@ -40,6 +82,7 @@ articlesModule.controller('ArticlesUpdateController', [
                 function (response)
                 {
                     notify('Artigo deletado com sucesso!', 'success');
+
                     $state.go('articles-list');
                 },
                 function (response)
@@ -50,20 +93,20 @@ articlesModule.controller('ArticlesUpdateController', [
         };
 
         /**
-         * Get data needed by the view.
+         * Send the requests to get data needed by the view.
          *
          * @return void
          */
         self.getViewData = function ()
         {
-            var article = ArticlesService.find(self.id);
+            var articlePromise = ArticlesService.find(self.id);
 
-            var categories = article.then(function (response) {
-                return getData(api_url('admin/categories'));
-            })
+            var categoriesPromise = articlePromise.then(function (response) {
+                return CategoriesService.all();
+            });
 
-            var tags = categories.then(function (response) {
-                return getData(api_url('admin/tags'));
+            var tagsPromise = categoriesPromise.then(function (response) {
+                return TagsService.all();
             });
 
             var callbacks = {
@@ -79,26 +122,7 @@ articlesModule.controller('ArticlesUpdateController', [
                 }
             };
 
-            self.qService.all([article, categories, tags]).then(callbacks.success).catch(callbacks.error);
-        }
-
-        var getData = function (url)
-        {
-            var deferred = $q.defer();
-
-            var callbacks = {
-                success: function (response)
-                {
-                     deferred.resolve(response);
-                },
-                error: function (response)
-                {
-                    deferred.reject(response);
-                },
-            };
-            $http.get(url).then(callbacks.success, callbacks.error);
-
-            return deferred.promise;
+            self.qService.all([articlePromise, categoriesPromise, tagsPromise]).then(callbacks.success).catch(callbacks.error);
         };
 
         self.getViewData();

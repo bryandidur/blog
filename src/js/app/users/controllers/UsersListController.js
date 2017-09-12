@@ -1,25 +1,47 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Users List
+|--------------------------------------------------------------------------
+|
+*/
 
 usersModule.controller('UsersListController', [
-    '$scope', '$http',
-    function ($scope, $http)
+    '$scope', 'UsersService',
+    function ($scope, UsersService)
     {
-        $scope.getUsers = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.users = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-            $http.get(api_url('admin/users')).then(promises.success, promises.error);
+        /**
+         * All users.
+         *
+         * @type array
+         */
+        self.users = [];
+
+        /**
+         * Send the request to get all users.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            UsersService.all().then(
+                function (response)
+                {
+                    self.users = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter os usuários!', 'error');
+                }
+            );
         };
 
-        $scope.getUsers();
+        self.getAll();
     }
 ]);

@@ -1,4 +1,11 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Main Application Configuration Setup
+|--------------------------------------------------------------------------
+|
+| Set up the app routes and other main configurations.
+|
+*/
 
 appModule.config([
     '$stateProvider', '$urlRouterProvider',

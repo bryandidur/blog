@@ -1,21 +1,45 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Define Controller For The "Forgot Password"
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.controller('ForgotPasswordController', [
     '$scope', 'ForgotPasswordService',
     function ($scope, ForgotPasswordService)
     {
-        $scope.sendResetLinkEmail = function ()
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * User email.
+         *
+         * @type string
+         */
+        self.email = '';
+
+        /**
+         * Send the request for send reset link e-mail.
+         *
+         * @return void
+         */
+        self.sendResetLinkEmail = function ()
         {
-            ForgotPasswordService.sendResetLinkEmail($scope.email, {
-                success: function (response)
+            ForgotPasswordService.sendResetLinkEmail(self.email).then(
+                function (response)
                 {
                     notify('Nós enviamos à você um link para a recuperação de senha. Cheque sua caixa de entrada!', 'success');
                 },
-                error: function (response)
+                function (response)
                 {
                     show_messages(response.data, 'error');
-                },
-            });
-        }
-    },
+                }
+            );
+        };
+    }
 ]);

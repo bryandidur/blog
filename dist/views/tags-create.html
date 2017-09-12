@@ -18,7 +18,7 @@
                 </div><!-- /.box-header -->
 
                 <!-- form start -->
-                <form name="tagForm" role="form" data-ng-submit="store(); tagForm.$setUntouched(true); tagForm.$setPristine(true);">
+                <form name="tagForm" role="form" data-ng-submit="store(); tagForm.$setUntouched(true); tagForm.$setPristine(true);" novalidate>
                     <div class="box-body">
                         <div class="form-group" data-ng-class="{'has-error': tagForm.name.$invalid && tagForm.name.$touched}">
                             <label for="name">Nome</label>

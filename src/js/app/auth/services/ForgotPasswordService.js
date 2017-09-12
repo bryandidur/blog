@@ -1,32 +1,71 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Forgot Password Service
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.service('ForgotPasswordService', [
-    '$http',
-    function ($http)
+    '$q', '$http',
+    function ($q, $http)
     {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
         var self = this;
-        var apiRequestUrl = api_url('auth/reset');
 
-        this.sendResetLinkEmail = function (email, callbacks)
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('auth/reset');
+
+        /**
+         * URL to reset password.
+         * @type string
+         */
+        self.resetPasswordURL = url('#!/reset/{token}');
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * AngularJS HTTP service.
+         *
+         * @type object
+         */
+        self.httpService = $http;
+
+        /**
+         * Makes the request for send reset link e-mail.
+         *
+         * @param  string email
+         * @return Angular promise
+         */
+        self.sendResetLinkEmail = function (email)
         {
-            var callbacks = callbacks || {};
-            var data = {email: email, route: url('#!/reset/{token}')};
-            var promises = {
-                success: function (response)
-                {
-                    //
+            var deferredPromise = self.qService.defer();
+            var data = {email: email, route: self.resetPasswordURL};
 
-                    if ( callbacks.success ) callbacks.success(response);
+            self.httpService.post(self.requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
                 },
-                error: function (response)
+                function (response)
                 {
-                    //
-
-                    if ( callbacks.error ) callbacks.error(response);
+                    deferredPromise.reject(response);
                 }
-            };
+            );
 
-            $http.post(apiRequestUrl, data).then(promises.success, promises.error);
-        }
+            return deferredPromise.promise;
+        };
     }
 ]);

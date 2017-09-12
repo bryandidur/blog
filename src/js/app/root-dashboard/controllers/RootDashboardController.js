@@ -1,24 +1,46 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For The Root Dashboard
+|--------------------------------------------------------------------------
+|
+*/
 
 rootDashboardModule.controller('RootDashboardController', [
     '$scope', '$state', 'AuthService',
     function ($scope, $state, AuthService)
     {
-        // Initializes the layout controls
-        window.layoutInit();
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.auth_user = AuthService.getUser();
+        /**
+         * Authenticated user.
+         *
+         * @type object
+         */
+        self.authUser = AuthService.getUser();
 
-        $scope.logout = function ()
+        /**
+         * Log user out of the application.
+         *
+         * @return void
+         */
+        self.logout = function ()
         {
-            AuthService.unAuthenticate({
-                success: function (response)
+            AuthService.unAuthenticate().then(
+                function (response)
                 {
                     notify('Logout efetuado com sucesso!', 'success');
 
                     $state.go('login');
                 }
-            });
+            );
         };
-    },
+
+        // Initializes the layout scripts
+        window.layoutInit();
+    }
 ]);

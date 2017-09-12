@@ -1,27 +1,48 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Users Register
+|--------------------------------------------------------------------------
+|
+*/
 
 usersModule.controller('UsersRegisterController', [
-    '$scope', '$http',
-    function ($scope, $http)
+    '$scope', 'UsersService',
+    function ($scope, UsersService)
     {
-        $scope.user = {};
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.store = function ()
+        /**
+         * User to be filled.
+         *
+         * @type object
+         */
+        self.user = {};
+
+        /**
+         * Send a request for store a newly registered user.
+         *
+         * @return void
+         */
+        self.store = function ()
         {
-            var promises = {
-                success: function (response)
+            UsersService.store(self.user).then(
+                function (response)
                 {
-                    $scope.user = {};
+                    self.user = {};
 
-                    notify('Usuário registrado com sucesso!.', 'success');
+                    notify('Usuário registrado com sucesso!', 'success');
                 },
-                error: function (response)
+                function (response)
                 {
+                    notify('Não foi possível registrar o usuário!', 'error');
                     show_messages(response.data, 'error');
-                },
-            };
-
-            $http.post(api_url('admin/users'), $scope.user).then(promises.success, promises.error);
+                }
+            );
         };
     }
 ]);

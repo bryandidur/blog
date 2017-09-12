@@ -1,63 +1,115 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Categories Update
+|--------------------------------------------------------------------------
+|
+*/
 
 categoriesModule.controller('CategoriesUpdateController', [
-    '$scope', '$http', '$state', '$stateParams',
-    function ($scope, $http, $state, $stateParams)
+    '$scope', '$q', '$state', '$stateParams', 'CategoriesService',
+    function ($scope, $q, $state, $stateParams, CategoriesService)
     {
-        $scope.category = {};
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.getCategory = function ()
+        /**
+         * Request category id.
+         *
+         * @type number
+         */
+        self.id = $stateParams.id;
+
+        /**
+         * Requested category.
+         *
+         * @type object
+         */
+        self.category = {};
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * Send the request to the category update.
+         *
+         * @return void
+         */
+        self.update = function ()
         {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.category = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
+            self.category = self.removeEmptyData(self.category);
 
-            $http.get(api_url('admin/categories/' + $stateParams.id)).then(promises.success, promises.error);
+            CategoriesService.update(self.category).then(
+                function (response)
+                {
+                    notify('Categoria editada com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível salvar as alterações da categoria!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
         };
 
-        $scope.update = function ()
+        /**
+         * Send the request for the category delete.
+         *
+         * @return void
+         */
+        self.destroy = function ()
         {
-            $scope.category = clearEmptyData($scope.category);
-
-            var promises = {
-                success: function (response)
-                {
-                    notify('Categoria atualizada com sucesso!', 'success');
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
-
-            $http.put(api_url('admin/categories/' + $scope.category.id), $scope.category).then(promises.success, promises.error);
-        };
-
-        $scope.delete = function ()
-        {
-            var promises = {
-                success: function (response)
+            CategoriesService.destroy(self.id).then(
+                function (response)
                 {
                     notify('Categoria deletada com sucesso!', 'success');
+
                     $state.go('categories-list');
+                },
+                function (response)
+                {
+                    notify('Não foi possível deletar a categoria!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the requests to get data needed by the view.
+         *
+         * @return void
+         */
+        self.getViewData = function ()
+        {
+            var categoryPromise = CategoriesService.find(self.id);
+
+            var callbacks = {
+                success: function (response)
+                {
+                    self.category = response[0].data;
                 },
                 error: function (response)
                 {
-                    show_messages(response.data, 'error');
-                },
+                   notify('Não foi possível obter os dados necessários para a edição!', 'error');
+                }
             };
 
-            $http.delete(api_url('admin/categories/' + $scope.category.id)).then(promises.success, promises.error);
+            self.qService.all([categoryPromise]).then(callbacks.success).catch(callbacks.error);
         };
 
-        var clearEmptyData = function (data)
+        /**
+         * Removes empty keys from data object.
+         *
+         * @param  object data
+         * @return object
+         */
+        self.removeEmptyData = function (data)
         {
             if ( data instanceof Object ) {
                 for (key in data) {
@@ -66,8 +118,8 @@ categoriesModule.controller('CategoriesUpdateController', [
             }
 
             return data;
-        }
+        };
 
-        $scope.getCategory();
+        self.getViewData();
     }
 ]);

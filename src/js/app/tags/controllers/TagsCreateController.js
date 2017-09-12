@@ -1,27 +1,48 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Tags Create
+|--------------------------------------------------------------------------
+|
+*/
 
 tagsModule.controller('TagsCreateController', [
-    '$scope', '$http',
-    function ($scope, $http)
+    '$scope', 'TagsService',
+    function ($scope, TagsService)
     {
-        $scope.tag = {};
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.store = function ()
+        /**
+         * Tag to be filled.
+         *
+         * @type object
+         */
+        self.tag = {};
+
+        /**
+         * Send a request for store a newly created tag.
+         *
+         * @return void
+         */
+        self.store = function ()
         {
-            var promises = {
-                success: function (response)
+            TagsService.store(self.tag).then(
+                function (response)
                 {
-                    $scope.tag = {};
+                    self.tag = {};
 
-                    notify('Tag cadastrada com sucesso!.', 'success');
+                    notify('Tag cadastrada com sucesso!', 'success');
                 },
-                error: function (response)
+                function (response)
                 {
+                    notify('Não foi possível cadastrar a tag!', 'error');
                     show_messages(response.data, 'error');
-                },
-            };
-
-            $http.post(api_url('admin/tags'), $scope.tag).then(promises.success, promises.error);
+                }
+            );
         }
     }
 ]);

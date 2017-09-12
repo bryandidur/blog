@@ -1,6 +1,6 @@
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>Categorias <small>Edição</small></h1>
+    <h1>Categoria <small>{{ category.name }}</small></h1>
     <ol class="breadcrumb">
         <li><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
         <li><a data-ui-sref="categories-list"><i class="fa fa-object-group"></i> Categorias</a></li>
@@ -18,7 +18,7 @@
                 </div><!-- /.box-header -->
 
                 <!-- form start -->
-                <form name="categoryForm" role="form" data-ng-submit="update(); categoryForm.$setUntouched(true); categoryForm.$setPristine(true);">
+                <form name="categoryForm" role="form" data-ng-submit="update(); categoryForm.$setUntouched(true); categoryForm.$setPristine(true);" novalidate>
                     <div class="box-body">
                         <div class="form-group" data-ng-class="{'has-error': categoryForm.name.$invalid && categoryForm.name.$touched}">
                             <label for="name">Nome</label>
@@ -51,7 +51,7 @@
                             <i class="fa fa-check"></i> Salvar
                         </button>
 
-                        <button class="btn btn-danger pull-right" type="button" data-ng-click="delete()">
+                        <button class="btn btn-danger pull-right" type="button" data-ng-click="destroy()">
                             <i class="fa fa-close"></i> Deletar categoria
                         </button>
                     </div>

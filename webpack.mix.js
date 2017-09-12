@@ -19,8 +19,10 @@ mix.combine([
 ], 'dist/assets/js/vendor.js');
 
 mix.scripts([
-    // Application JavaScript
+    // Layout scripts
     'src/js/layout/app.js',
+
+    // Main application module
     'src/js/app/app.env.js',
     'src/js/app/app.helpers.js',
     'src/js/app/app.module.js',
@@ -28,66 +30,55 @@ mix.scripts([
 
     // Validation module
     'src/js/app/validation/validation.module.js',
-    'src/js/app/validation/directives/validateEmail.js',
-    'src/js/app/validation/directives/validatePasswordConfirmation.js',
+    'src/js/app/validation/directives/*.js',
 
     // Auth module
     'src/js/app/auth/auth.module.js',
     'src/js/app/auth/auth.config.js',
-    'src/js/app/auth/services/RefreshAuthorizationHeaderService.js',
-    'src/js/app/auth/services/AuthService.js',
-    'src/js/app/auth/services/ForgotPasswordService.js',
-    'src/js/app/auth/services/ResetPasswordService.js',
-    'src/js/app/auth/controllers/LoginController.js',
-    'src/js/app/auth/controllers/ForgotPasswordController.js',
-    'src/js/app/auth/controllers/ResetPasswordController.js',
+    'src/js/app/auth/services/*.js',
+    'src/js/app/auth/controllers/*.js',
 
     // Root Dashboard module
     'src/js/app/root-dashboard/root-dashboard.module.js',
     'src/js/app/root-dashboard/root-dashboard.config.js',
-    'src/js/app/root-dashboard/controllers/RootDashboardController.js',
-    'src/js/app/root-dashboard/services/AuthorizationHttpInterceptorService.js',
+    'src/js/app/root-dashboard/controllers/*.js',
+    'src/js/app/root-dashboard/services/*.js',
 
     // Dashboard module
     'src/js/app/dashboard/dashboard.module.js',
-    'src/js/app/dashboard/controllers/DashboardController.js',
+    'src/js/app/dashboard/services/*.js',
+    'src/js/app/dashboard/controllers/*.js',
 
     // Users module
     'src/js/app/users/users.module.js',
-    'src/js/app/users/controllers/UsersListController.js',
-    'src/js/app/users/controllers/UsersRegisterController.js',
-    'src/js/app/users/controllers/UsersProfileController.js',
+    'src/js/app/users/services/*.js',
+    'src/js/app/users/controllers/*.js',
 
     // Tags module
     'src/js/app/tags/tags.module.js',
-    'src/js/app/tags/controllers/TagsListController.js',
-    'src/js/app/tags/controllers/TagsCreateController.js',
-    'src/js/app/tags/controllers/TagsUpdateController.js',
+    'src/js/app/tags/services/*.js',
+    'src/js/app/tags/controllers/*.js',
 
     // Categories module
     'src/js/app/categories/categories.module.js',
-    'src/js/app/categories/controllers/CategoriesListController.js',
-    'src/js/app/categories/controllers/CategoriesCreateController.js',
-    'src/js/app/categories/controllers/CategoriesUpdateController.js',
+    'src/js/app/categories/services/*.js',
+    'src/js/app/categories/controllers/*.js',
 
     // Articles module
     'src/js/app/articles/articles.module.js',
-    'src/js/app/articles/services/ArticlesService.js',
-    'src/js/app/articles/controllers/ArticlesListController.js',
-    'src/js/app/articles/controllers/ArticlesCreateController.js',
-    'src/js/app/articles/controllers/ArticlesUpdateController.js',
+    'src/js/app/articles/services/*.js',
+    'src/js/app/articles/controllers/*.js',
 ], 'dist/assets/js/app.js');
-
-mix.copy([
-    // All Application Views
-    'src/js/app/*/views/*.html',
-], 'dist/views');
 
 mix.sass(
     // Application Sass
     'src/sass/app.scss',
 'assets/css/app.css');
 
+mix.copy([
+    // All Application Views
+    'src/js/app/*/views/*.html',
+], 'dist/views');
 
 mix.copy([
     // Application Images

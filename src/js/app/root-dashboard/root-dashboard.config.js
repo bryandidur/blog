@@ -1,4 +1,11 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Main Root Dashboard Configuration Setup
+|--------------------------------------------------------------------------
+|
+| Set up the HTTP interceptors and other main configurations.
+|
+*/
 
 rootDashboardModule.config([
     '$httpProvider',
@@ -12,7 +19,11 @@ rootDashboardModule.run([
     '$transitions', '$injector',
     function ($transitions, $injector)
     {
-        $transitions.onStart({}, function(trans)
+        /*
+        | Policie for checking if user is authenticated
+        | to access the root dashboard and its child states.
+         */
+        $transitions.onStart({}, function (trans)
         {
             var toState = trans.to();
             var toStateBelongsToRootDashboardState = toState.parent == 'root-dashboard';

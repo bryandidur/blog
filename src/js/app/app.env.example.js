@@ -1,3 +1,12 @@
+/*
+|--------------------------------------------------------------------------
+| Application Environment Setup
+|--------------------------------------------------------------------------
+|
+| Define the enviroment setup variables and set the application mode.
+|
+*/
+
 'use strict';
 
 window.env = window.env || {};

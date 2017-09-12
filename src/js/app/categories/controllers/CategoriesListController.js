@@ -1,25 +1,47 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Categories List
+|--------------------------------------------------------------------------
+|
+*/
 
 categoriesModule.controller('CategoriesListController', [
-    '$scope', '$http',
-    function ($scope, $http)
+    '$scope', 'CategoriesService',
+    function ($scope, CategoriesService)
     {
-        $scope.getCategories = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.categories = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-            $http.get(api_url('admin/categories')).then(promises.success, promises.error);
+        /**
+         * All categories.
+         *
+         * @type array
+         */
+        self.categories = [];
+
+        /**
+         * Send the request to get all categories.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            CategoriesService.all().then(
+                function (response)
+                {
+                    self.categories = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter as categorias!', 'error');
+                }
+            );
         };
 
-        $scope.getCategories();
+        self.getAll();
     }
 ]);

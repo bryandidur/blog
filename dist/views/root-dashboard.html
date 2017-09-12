@@ -2,48 +2,48 @@
     <!-- Main header -->
     <header class="main-header">
         <a data-ui-sref="dashboard" class="logo">
-            <span class="logo-mini"><b>A</b>LT</span>
-            <span class="logo-lg"><b>Admin</b>LTE</span>
+            <span class="logo-mini"><b>B</b>L</span>
+            <span class="logo-lg"><b>Blog</b></span>
         </a>
 
         <nav class="navbar navbar-static-top" role="navigation">
-            <a href="javascript:void(0);" class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <a href="javascript:undefined" class="sidebar-toggle" data-toggle="push-menu" role="button">
                 <span class="sr-only">Toggle navigation</span>
             </a>
             <div class="navbar-custom-menu">
                 <ul class="nav navbar-nav">
                     <!-- User Account Menu -->
                     <li class="dropdown user user-menu">
-                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">
+                        <a href="javascript:undefined" class="dropdown-toggle" data-toggle="dropdown">
                             <img src="assets/img/user.jpg" class="user-image" alt="User Image">
-                            <span class="hidden-xs">{{ auth_user.name }}</span>
+                            <span class="hidden-xs">{{ authUser.name }}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <li class="user-header">
                                 <img src="assets/img/user.jpg" class="img-circle" alt="User Image">
                                 <p>
-                                    {{ auth_user.name }}
-                                    <small>Membro desde {{ auth_user.created_at }}</small>
+                                    {{ authUser.name }}
+                                    <small>Membro desde {{ authUser.created_at }}</small>
                                 </p>
                             </li>
                             <!-- Menu Body -->
                             <li class="user-body">
                                 <div class="row">
                                     <div class="col-xs-4 text-center">
-                                        <a href="javascript:void(0);">Seguidores</a>
+                                        <a href="javascript:undefined">Seguidores</a>
                                     </div>
                                     <div class="col-xs-4 text-center">
-                                        <a href="javascript:void(0);">Vendas</a>
+                                        <a href="javascript:undefined">Vendas</a>
                                     </div>
                                     <div class="col-xs-4 text-center">
-                                        <a href="javascript:void(0);">Amigos</a>
+                                        <a href="javascript:undefined">Amigos</a>
                                     </div>
                                 </div><!-- /.row -->
                             </li>
                             <!-- Menu Footer-->
                             <li class="user-footer">
                                 <div class="pull-left">
-                                    <a data-ui-sref="users-profile({id: auth_user.id})" class="btn btn-default btn-flat">Meu perfil</a>
+                                    <a data-ui-sref="users-profile({id: authUser.id})" class="btn btn-default btn-flat">Meu perfil</a>
                                 </div>
                                 <div class="pull-right">
                                     <a data-ng-click="logout()" class="btn btn-default btn-flat">Sair</a>
@@ -52,9 +52,9 @@
                         </ul>
                     </li>
                     <!-- Control Sidebar Toggle Button -->
-                    <li>
-                        <a href="javascript:void(0);" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
-                    </li>
+                    <!-- <li>
+                        <a href="javascript:undefined" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                    </li> -->
                 </ul>
             </div>
         </nav>
@@ -68,8 +68,8 @@
                     <img src="assets/img/user.jpg" class="img-circle" alt="User Image">
                 </div>
                 <div class="pull-left info">
-                    <p>{{ auth_user.name }}</p>
-                    <a href="javascript:void(0);"><i class="fa fa-circle text-success"></i> Online</a>
+                    <p>{{ authUser.name }}</p>
+                    <a href="javascript:undefined"><i class="fa fa-circle text-success"></i> Online</a>
                 </div>
             </div>
 
@@ -78,58 +78,50 @@
                 <li class="header">PAINEL ADMINISTRATIVO</li>
 
                 <!-- Dashboard -->
-                <li class="active"><a data-ng-href="#!dashboard"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+                <li class="active"><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
 
                 <!-- Tags -->
                 <li class="treeview">
-                    <a href="javascript:void(0);"><i class="fa fa-tags"></i> <span>Tags</span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </span>
+                    <a href="javascript:undefined">
+                        <i class="fa fa-tags"></i> <span>Tags</span> <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a data-ui-sref="tags-list">Ver tags</a></li>
-                        <li><a data-ui-sref="tags-create">Cadastrar tag</a></li>
+                        <li><a data-ui-sref="tags-list"><i class="fa fa-circle-o"></i> Ver tags</a></li>
+                        <li><a data-ui-sref="tags-create"><i class="fa fa-circle-o"></i> Cadastrar tag</a></li>
                     </ul>
                 </li>
 
                 <!-- Categories -->
                 <li class="treeview">
-                    <a href="javascript:void(0);"><i class="fa fa-object-group"></i> <span>Categorias</span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </span>
+                    <a href="javascript:undefined">
+                        <i class="fa fa-object-group"></i> <span>Categorias</span> <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a data-ui-sref="categories-list">Ver categorias</a></li>
-                        <li><a data-ui-sref="categories-create">Cadastrar categoria</a></li>
+                        <li><a data-ui-sref="categories-list"><i class="fa fa-circle-o"></i> Ver categorias</a></li>
+                        <li><a data-ui-sref="categories-create"><i class="fa fa-circle-o"></i> Cadastrar categoria</a></li>
                     </ul>
                 </li>
 
                 <!-- Articles -->
                 <li class="treeview">
-                    <a href="javascript:void(0);"><i class="fa fa-pencil"></i> <span>Artigos</span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </span>
+                    <a href="javascript:undefined">
+                        <i class="fa fa-pencil"></i> <span>Artigos</span> <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a data-ui-sref="articles-list">Ver artigos</a></li>
-                        <li><a data-ui-sref="articles-create">Cadastrar artigo</a></li>
+                        <li><a data-ui-sref="articles-list"><i class="fa fa-circle-o"></i> Ver artigos</a></li>
+                        <li><a data-ui-sref="articles-create"><i class="fa fa-circle-o"></i> Cadastrar artigos</a></li>
                     </ul>
                 </li>
 
                 <!-- Users -->
                 <li class="treeview">
-                    <a href="javascript:void(0);"><i class="fa fa-users"></i> <span>Usuários</span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </span>
+                    <a href="javascript:undefined">
+                        <i class="fa fa-users"></i> <span>Usuários</span> <i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li><a data-ui-sref="users-list">Ver usuários</a></li>
-                        <li><a data-ui-sref="users-register">Cadastrar usuário</a></li>
-                        <li><a data-ui-sref="users-profile({id: auth_user.id})">Meu perfil</a></li>
+                        <li><a data-ui-sref="users-list"><i class="fa fa-circle-o"></i> Ver usuários</a></li>
+                        <li><a data-ui-sref="users-register"><i class="fa fa-circle-o"></i> Cadastrar usuário</a></li>
+                        <li><a data-ui-sref="users-profile({id: authUser.id})"><i class="fa fa-circle-o"></i> Meu perfil</a></li>
                     </ul>
                 </li>
             </ul><!-- / .sidebar-menu -->
@@ -146,18 +138,18 @@
 
     <!-- Main footer -->
     <footer class="main-footer">
-        <div class="pull-right hidden-xs">Anything you want</div>
-        <strong>Copyright &copy; 2016 <a href="javascript:void(0);">Company</a>.</strong> All rights reserved.
+        <div class="pull-right hidden-xs">"Simplicidade é a essência da felicidade." - Cedric Bledsoe</div>
+        <strong>&copy; 2017 de <a href="https://github.com/bryandidur" target="_blank">Bryan Didur</a>, para a comunidade. <i class="fa fa-heart text-red"></i></strong>
     </footer>
 
     <!-- Control Sidebar -->
-    <aside class="control-sidebar control-sidebar-dark">
+    <!-- <aside class="control-sidebar control-sidebar-dark">
         <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
             <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
             <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
         </ul>
 
-        <!-- Tab panes -->
+        <!-- Tab panes ->
         <div class="tab-content">
             <div class="tab-pane active" id="control-sidebar-home-tab">
                 <h3 class="control-sidebar-heading">Recent Activity</h3>
@@ -171,12 +163,12 @@
                             </div>
                         </a>
                     </li>
-                </ul><!-- /.control-sidebar-menu -->
+                </ul><!-- /.control-sidebar-menu ->
 
                 <h3 class="control-sidebar-heading">Tasks Progress</h3>
                 <ul class="control-sidebar-menu">
                     <li>
-                    <a href="javascript:;">
+                    <a href="javascript:undefined;">
                         <h4 class="control-sidebar-subheading">
                             Custom Template Design
                             <span class="pull-right-container">
@@ -189,10 +181,10 @@
                         </div>
                     </a>
                 </li>
-                </ul><!-- /.control-sidebar-menu -->
+                </ul><!-- /.control-sidebar-menu ->
             </div>
 
-            <!-- Stats tab content -->
+            <!-- Stats tab content ->
             <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
             <div class="tab-pane" id="control-sidebar-settings-tab">
                 <form method="post">
@@ -206,7 +198,8 @@
                     </div>
                 </form>
             </div>
-        </div><!-- / .tab-content -->
-    </aside><!-- /.control-sidebar -->
-    <div class="control-sidebar-bg"></div>
+        </div><!-- / .tab-content ->
+    </aside><!-- /.control-sidebar ->
+
+    <div class="control-sidebar-bg"></div> -->
 </div><!-- / .wrapper -->

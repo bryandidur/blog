@@ -2,8 +2,8 @@
 <section class="content-header">
     <h1>Usuários <small>Lista</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
-        <li class="active">Here</li>
+        <li><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li class="active"><i class="fa fa-users"></i> Usuários</li>
     </ol>
 </section>
 
@@ -16,17 +16,17 @@
                     <table class="table table-bordered table-striped table-hover data-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
+                                <th>Nome</th>
                                 <th>E-mail</th>
-                                <th>Date</th>
+                                <th>Data</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             <tr data-ng-repeat="user in users">
                                 <td>
-                                    <a data-ng-href="#!users/profile/{{ user.id }}"
-                                        data-toggle="tooltip" data-placement="right" data-title="Ver perfil"
+                                    <a data-toggle="tooltip" data-placement="right" data-title="Ver perfil"
+                                        data-ui-sref="users-profile({id: user.id})"
                                     >{{ user.name }}</a>
                                 </td>
                                 <td>{{ user.email }}</td>
@@ -36,15 +36,14 @@
 
                         <tfoot>
                             <tr>
-                                <th>Name</th>
+                                <th>Nome</th>
                                 <th>E-mail</th>
-                                <th>Date</th>
+                                <th>Data</th>
                             </tr>
                         </tfoot>
                     </table>
                 </div><!-- /.box-body -->
             </div><!-- /.box -->
-
         </div>
     </div><!-- /.row -->
 </section><!-- /.content -->

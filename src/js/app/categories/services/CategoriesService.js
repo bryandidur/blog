@@ -1,11 +1,11 @@
 /*
 |--------------------------------------------------------------------------
-| Define The Main Articles Service
+| Main Categories Service
 |--------------------------------------------------------------------------
 |
 */
 
-articlesModule.service('ArticlesService', [
+categoriesModule.service('CategoriesService', [
     '$q', '$http',
     function ($q, $http)
     {
@@ -21,7 +21,7 @@ articlesModule.service('ArticlesService', [
          *
          * @type string
          */
-        self.requestUrl = api_url('admin/articles');
+        self.requestUrl = api_url('admin/categories');
 
         /**
          * AngularJS Promises service.
@@ -38,7 +38,7 @@ articlesModule.service('ArticlesService', [
         self.httpService = $http;
 
         /**
-         * Makes the request for get all articles.
+         * Makes the request for get all categories on the API.
          *
          * @return Angular promise
          */
@@ -58,10 +58,10 @@ articlesModule.service('ArticlesService', [
             );
 
             return deferredPromise.promise;
-        }
+        };
 
         /**
-         * Makes the request for get an specific article.
+         * Makes the request for get an specific category on the API.
          *
          * @param  number id
          * @return Angular promise
@@ -86,7 +86,7 @@ articlesModule.service('ArticlesService', [
         }
 
         /**
-         * Makes the request for store a newly created article on the API.
+         * Makes the request for store a newly created category on the API.
          *
          * @param  object data
          * @return Angular promise
@@ -107,24 +107,20 @@ articlesModule.service('ArticlesService', [
             );
 
             return deferredPromise.promise;
-        }
+        };
 
         /**
-         * Makes the request for update article on the API.
+         * Makes the request for update category on the API.
          *
          * @param  object data
          * @return Angular promise
          */
         self.update = function (data)
         {
-            var article = angular.copy(data);
             var deferredPromise = self.qService.defer();
             var requestUrl = self.requestUrl + '/' + data.id;
 
-            article.tags = self.getIds(article.tags);
-            article.categories = self.getIds(article.categories);
-
-            self.httpService.put(requestUrl, article).then(
+            self.httpService.put(requestUrl, data).then(
                 function (response)
                 {
                     deferredPromise.resolve(response);
@@ -136,10 +132,10 @@ articlesModule.service('ArticlesService', [
             );
 
             return deferredPromise.promise;
-        }
+        };
 
         /**
-         * Makes the request for delete article on the API.
+         * Makes the request for delete category on the API.
          *
          * @param  number id
          * @return Angular promise
@@ -161,23 +157,6 @@ articlesModule.service('ArticlesService', [
             );
 
             return deferredPromise.promise;
-        }
-
-        /**
-         * Return only ids from an array of objects.
-         *
-         * @param  array data
-         * @return array
-         */
-        self.getIds = function (data)
-        {
-            var ids = [];
-
-            angular.forEach(data, function (item, key) {
-                ids.push(item.id);
-            });
-
-            return ids;
         }
     }
 ]);

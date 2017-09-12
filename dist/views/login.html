@@ -4,10 +4,14 @@
     </div>
 
     <div class="login-box-body">
-        <p class="login-box-msg">Digite suas credenciais para iniciar sua sessão</p>
+        <p class="login-box-msg">Digite suas credenciais para iniciar sua sessão.</p>
         <form name="loginForm" data-ng-submit="authenticate($event)" novalidate>
             <div class="form-group has-feedback" data-ng-class="{'has-error': loginForm.email.$invalid && loginForm.email.$touched}">
-                <input class="form-control" name="email" type="email" placeholder="Email" data-ng-model="credentials.email" data-ng-required="true" data-validate-email="true">
+                <input class="form-control" name="email" type="email" placeholder="E-mail"
+                    data-ng-model="credentials.email"
+                    data-ng-required="true"
+                    data-validate-email="true"
+                >
                 <span class="fa fa-envelope form-control-feedback"></span>
 
                 <div class="help-block" data-ng-show="loginForm.$submitted || loginForm.email.$touched" data-ng-messages="loginForm.email.$error">
@@ -15,7 +19,10 @@
                 </div>
             </div>
             <div class="form-group has-feedback" data-ng-class="{'has-error': loginForm.password.$invalid && loginForm.password.$touched}">
-                <input class="form-control" name="password" type="password" placeholder="Senha" data-ng-model="credentials.password" data-ng-required="true">
+                <input class="form-control" name="password" type="password" placeholder="Senha"
+                    data-ng-model="credentials.password"
+                    data-ng-required="true"
+                >
                 <span class="fa fa-lock form-control-feedback"></span>
 
                 <div class="help-block" data-ng-show="loginForm.$submitted || loginForm.password.$touched" data-ng-messages="loginForm.password.$error">

@@ -2,8 +2,9 @@
 <section class="content-header">
     <h1>Usuários <small>Cadastro</small></h1>
     <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
-        <li class="active">Here</li>
+        <li><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li><a data-ui-sref="users-list"><i class="fa fa-users"></i> Usuários</a></li>
+        <li class="active">Cadastro</li>
     </ol>
 </section>
 
@@ -17,12 +18,13 @@
                 </div><!-- /.box-header -->
 
                 <!-- form start -->
-                <form name="userForm" role="form" data-ng-submit="store(); userForm.$setUntouched(true); userForm.$setPristine(true);">
+                <form name="userForm" role="form" data-ng-submit="store(); userForm.$setUntouched(true); userForm.$setPristine(true);" novalidate>
                     <div class="box-body">
                         <div class="form-group" data-ng-class="{'has-error': userForm.name.$invalid && userForm.name.$touched}">
                             <label for="name">Nome</label>
                             <input id="name" class="form-control" name="name" type="text"
                                 data-ng-model="user.name"
+                                data-ng-maxlength="255"
                                 data-ng-required="true"
                             >
 
@@ -36,6 +38,7 @@
                             <input id="email" class="form-control" name="email" type="email"
                                 data-ng-model="user.email"
                                 data-ng-required="true"
+                                data-ng-maxlength="255"
                                 data-validate-email="true"
                             >
 
@@ -48,8 +51,9 @@
                             <label for="password">Senha <small>(Mínimo 6 caracteres)</small></label>
                             <input id="password" class="form-control" name="password" type="password"
                                 data-ng-model="user.password"
-                                data-ng-required="true"
                                 data-ng-minlength="6"
+                                data-ng-maxlength="255"
+                                data-ng-required="true"
                             >
 
                             <div class="help-block" data-ng-show="userForm.$submitted || userForm.password.$touched" data-ng-messages="userForm.password.$error">

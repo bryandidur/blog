@@ -1,25 +1,47 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Tags List
+|--------------------------------------------------------------------------
+|
+*/
 
 tagsModule.controller('TagsListController', [
-    '$scope', '$http',
-    function ($scope, $http)
+    '$scope', 'TagsService',
+    function ($scope, TagsService)
     {
-        $scope.getTags = function ()
-        {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.tags = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-            $http.get(api_url('admin/tags')).then(promises.success, promises.error);
+        /**
+         * All tags.
+         *
+         * @type array
+         */
+        self.tags = [];
+
+        /**
+         * Send the request to get all tags.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            TagsService.all().then(
+                function (response)
+                {
+                    self.tags = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter as tags!', 'error');
+                }
+            );
         };
 
-        $scope.getTags();
+        self.getAll();
     }
 ]);

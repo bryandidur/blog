@@ -1,27 +1,48 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Categories Create
+|--------------------------------------------------------------------------
+|
+*/
 
 categoriesModule.controller('CategoriesCreateController', [
-    '$scope', '$http',
-    function ($scope, $http)
+    '$scope', 'CategoriesService',
+    function ($scope, CategoriesService)
     {
-        $scope.category = {};
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.store = function ()
+        /**
+         * Category to be filled.
+         *
+         * @type object
+         */
+        self.category = {};
+
+        /**
+         * Send a request for store a newly created category.
+         *
+         * @return void
+         */
+        self.store = function ()
         {
-            var promises = {
-                success: function (response)
+            CategoriesService.store(self.category).then(
+                function (response)
                 {
-                    $scope.category = {};
+                    self.category = {};
 
                     notify('Categoria cadastrada com sucesso!', 'success');
                 },
-                error: function (response)
+                function (response)
                 {
+                    notify('Não foi possível cadastrar a categoria!', 'error');
                     show_messages(response.data, 'error');
-                },
-            };
-
-            $http.post(api_url('admin/categories'), $scope.category).then(promises.success, promises.error);
-        }
+                }
+            );
+        };
     }
 ]);

@@ -1,6 +1,6 @@
 <!-- Content Header (Page header) -->
 <section class="content-header">
-    <h1>Tags <small>Edição</small></h1>
+    <h1>Tag <small>{{ tag.name }}</small></h1>
     <ol class="breadcrumb">
         <li><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
         <li><a data-ui-sref="tags-list"><i class="fa fa-tags"></i> Tags</a></li>
@@ -18,7 +18,7 @@
                 </div><!-- /.box-header -->
 
                 <!-- form start -->
-                <form name="tagForm" role="form" data-ng-submit="update(); tagForm.$setUntouched(true); tagForm.$setPristine(true);">
+                <form name="tagForm" role="form" data-ng-submit="update(); tagForm.$setUntouched(true); tagForm.$setPristine(true);" novalidate>
                     <div class="box-body">
                         <div class="form-group" data-ng-class="{'has-error': tagForm.name.$invalid && tagForm.name.$touched}">
                             <label for="name">Nome</label>
@@ -51,7 +51,7 @@
                             <i class="fa fa-check"></i> Salvar
                         </button>
 
-                        <button class="btn btn-danger pull-right" type="button" data-ng-click="delete()">
+                        <button class="btn btn-danger pull-right" type="button" data-ng-click="destroy()">
                             <i class="fa fa-close"></i> Deletar tag
                         </button>
                     </div>

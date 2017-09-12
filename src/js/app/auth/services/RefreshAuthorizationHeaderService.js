@@ -1,28 +1,73 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| (HTTP Interceptor) Refresh Authorization Header Service
+|--------------------------------------------------------------------------
+|
+*/
 
 authModule.factory('RefreshAuthorizationHeaderService', [
     '$q', '$injector',
     function ($q, $injector)
     {
-        var getRequestAccessToken = function () {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
+        var self = this;
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * Get the user access token.
+         *
+         * @return string
+         */
+        self.getRequestAccessToken = function ()
+        {
             var AuthService = $injector.get('AuthService')
             var accessToken = AuthService.getSessionData('access_token');
 
             return accessToken;
         };
 
-        var setRequestAccessToken = function (request, accessToken) {
+        /**
+         * Set the user access token to the request.
+         *
+         * @param object request
+         * @param string accessToken
+         */
+        self.setRequestAccessToken = function (request, accessToken)
+        {
             request.headers.Authorization = accessToken;
         };
 
-        var getResponseAccessToken = function (rejection) {
-            /// Get the refreshed access_token on Authorization header
-            var refreshedAccessToken = rejection.headers('Authorization');
+        /**
+         * Get the newly refreshed access token from the API response.
+         *
+         * @param  object responseORrejection
+         * @return string
+         */
+        self.getResponseAccessToken = function (responseORrejection)
+        {
+            // Get the refreshed access_token on Authorization header
+            var refreshedAccessToken = responseORrejection.headers('Authorization');
 
             return refreshedAccessToken;
         };
 
-        var setResponseAccessToken = function (refreshedAccessToken) {
+        /**
+         * Set the newly refreshed access token to the user session.
+         *
+         * @param string refreshedAccessToken
+         */
+        self.setResponseAccessToken = function (refreshedAccessToken)
+        {
             var AuthService = $injector.get('AuthService')
 
             // Only update the session access_token if the request
@@ -32,27 +77,45 @@ authModule.factory('RefreshAuthorizationHeaderService', [
             }
         };
 
-        this.request = function (request)
+        /**
+         * Succeeded requests interceptor.
+         *
+         * @param  object request
+         * @return object
+         */
+        self.request = function (request)
         {
-            setRequestAccessToken(request, getRequestAccessToken());
+            self.setRequestAccessToken(request, self.getRequestAccessToken());
 
             return request;
         };
 
-        this.response = function (response)
+        /**
+         * Succeeded responses interceptor.
+         *
+         * @param  object response
+         * @return object
+         */
+        self.response = function (response)
         {
-            setResponseAccessToken(getResponseAccessToken(response));
+            self.setResponseAccessToken(self.getResponseAccessToken(response));
 
             return response;
         };
 
-        this.responseError = function (rejection)
+        /**
+         * Failed responses interceptor.
+         *
+         * @param  object rejection
+         * @return Rejected Angular promise
+         */
+        self.responseError = function (rejection)
         {
-            setResponseAccessToken(getResponseAccessToken(rejection));
+            self.setResponseAccessToken(self.getResponseAccessToken(rejection));
 
-            return $q.reject(rejection);
+            return self.qService.reject(rejection);
         };
 
-        return this;
+        return self;
     }
 ]);

@@ -1,73 +1,130 @@
-'use strict';
+/*
+|--------------------------------------------------------------------------
+| Controller For Users Profile
+|--------------------------------------------------------------------------
+|
+*/
 
 usersModule.controller('UsersProfileController', [
-    '$scope', '$http', '$state', '$stateParams', 'AuthService',
-    function ($scope, $http, $state, $stateParams, AuthService)
+    '$scope', '$q', '$state', '$stateParams', 'UsersService', 'AuthService',
+    function ($scope, $q, $state, $stateParams, UsersService, AuthService)
     {
-        $scope.user = {};
-        $scope.authUser = AuthService.getUser();
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
 
-        $scope.getUser = function ()
+        /**
+         * Request user id.
+         *
+         * @type number
+         */
+        self.id = $stateParams.id;
+
+        /**
+         * Requested user.
+         *
+         * @type object
+         */
+        self.user = {};
+
+        /**
+         * Authenticated user.
+         *
+         * @type object
+         */
+        self.authUser = AuthService.getUser();
+
+        /**
+         * AngularJS Promises service.
+         *
+         * @type object
+         */
+        self.qService = $q;
+
+        /**
+         * Send the request to the user update.
+         *
+         * @return void
+         */
+        self.update = function ()
         {
-            var promises = {
-                success: function (response)
-                {
-                    $scope.user = response.data;
-                },
-                error: function (response)
-                {
-                    show_messages(response.data, 'error');
-                },
-            };
+            self.user = self.removeEmptyData(self.user);
 
-            $http.get(api_url('admin/users/' + $stateParams.id)).then(promises.success, promises.error);
-        };
-
-        $scope.update = function ()
-        {
-            $scope.user = clearEmptyData($scope.user);
-
-            var promises = {
-                success: function (response)
+            UsersService.update(self.user).then(
+                function (response)
                 {
                     notify('Perfil atualizado com sucesso!', 'success');
                 },
-                error: function (response)
+                function (response)
                 {
+                    notify('Não foi possível salvar as alterações do usuário!', 'error');
                     show_messages(response.data, 'error');
-                },
-            };
-
-            $http.put(api_url('admin/users/' + $scope.user.id), $scope.user).then(promises.success, promises.error);
+                }
+            );
         };
 
-        $scope.delete = function ()
+        /**
+         * Send the request for the user delete.
+         *
+         * @return void
+         */
+        self.destroy = function ()
         {
-            var promises = {
-                success: function (response)
+            UsersService.destroy(self.id).then(
+                function (response)
                 {
-                    if ( $scope.authUser.id == $scope.user.id ) {
+                    if ( self.authUser.id == self.user.id ) {
                         AuthService.unAuthenticate();
 
                         notify('Sua conta foi deletada com sucesso!', 'success');
-                        $state.go('login');
 
-                        return;
+                        return $state.go('login');
                     }
 
                     notify('Usuário deletado com sucesso!', 'success');
+
                     $state.go('users-list');
+                },
+                function (response)
+                {
+                    notify('Não foi possível deletar o perfil do usuário!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the requests to get data needed by the view.
+         *
+         * @return void
+         */
+        self.getViewData = function ()
+        {
+            var usersPromise = UsersService.find(self.id);
+
+            var callbacks = {
+                success: function (response)
+                {
+                    self.user = response[0].data;
                 },
                 error: function (response)
                 {
-                    show_messages(response.data, 'error');
-                },
+                   notify('Não foi possível obter os dados necessários para a edição!', 'error');
+                }
             };
 
-            $http.delete(api_url('admin/users/' + $scope.user.id)).then(promises.success, promises.error);
+            self.qService.all([usersPromise]).then(callbacks.success).catch(callbacks.error);
         };
 
-        var clearEmptyData = function (data)
+        /**
+         * Removes empty keys from data object.
+         *
+         * @param  object data
+         * @return object
+         */
+        self.removeEmptyData = function (data)
         {
             if ( data instanceof Object ) {
                 for (key in data) {
@@ -76,8 +133,8 @@ usersModule.controller('UsersProfileController', [
             }
 
             return data;
-        }
+        };
 
-        $scope.getUser();
+        self.getViewData();
     }
 ]);
