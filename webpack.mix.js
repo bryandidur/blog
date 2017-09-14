@@ -16,6 +16,7 @@ mix.combine([
     'node_modules/angular-messages/angular-messages.min.js',
     'node_modules/angular-ui-router/release/angular-ui-router.min.js',
     'node_modules/angular-ui-router/release/stateEvents.min.js',
+    'node_modules/angular-modal-service/dst/angular-modal-service.min.js'
 ], 'dist/assets/js/vendor.js');
 
 mix.scripts([
@@ -68,7 +69,16 @@ mix.scripts([
     'src/js/app/articles/articles.module.js',
     'src/js/app/articles/services/*.js',
     'src/js/app/articles/controllers/*.js',
+
+    // Files module
+    'src/js/app/files/files.module.js',
+    'src/js/app/files/services/*.js',
+    'src/js/app/files/controllers/*.js',
+    'src/js/app/files/directives/*.js'
 ], 'dist/assets/js/app.js');
+
+// Notifications
+mix.js('src/js/notifications.js', 'dist/assets/js');
 
 mix.sass(
     // Application Sass

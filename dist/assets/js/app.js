@@ -958,7 +958,7 @@ var log = function (args) {
 var appModule = angular.module('app', [
     'ngMessages', 'ui.router', 'ui.router.state.events',
     'validation', 'auth', 'root-dashboard', 'dashboard',
-    'users', 'tags', 'categories', 'articles'
+    'users', 'tags', 'categories', 'articles', 'files'
 ]);
 
 /*
@@ -1085,6 +1085,20 @@ appModule.config([
                 url: '/articles/:id',
                 templateUrl: view('articles-update.html'),
                 controller: 'ArticlesUpdateController',
+            },
+
+            // Files
+            'files-list': {
+                parent: 'root-dashboard',
+                url: '/files',
+                templateUrl: view('files-list.html'),
+                controller: 'FilesListController',
+            },
+            'files-upload': {
+                parent: 'root-dashboard',
+                url: '/files/upload',
+                templateUrl: view('files-upload.html'),
+                controller: 'FilesUploadController',
             },
         };
 
@@ -3637,5 +3651,502 @@ articlesModule.controller('ArticlesUpdateController', [
         };
 
         self.getViewData();
+    }
+]);
+
+/**
+ * Define the files module.
+ *
+ * @type object
+ */
+var filesModule = angular.module('files', ['ngMessages', 'angularModalService', 'validation']);
+
+/*
+|--------------------------------------------------------------------------
+| Main Files Service For HTTP Requests
+|--------------------------------------------------------------------------
+|
+*/
+
+filesModule.service('FilesService', [
+    '$q', '$http',
+    function ($q, $http)
+    {
+        /**
+         * This service scope.
+         *
+         * @type object
+         */
+        var self = this;
+
+        /**
+         * Requests API URL.
+         *
+         * @type string
+         */
+        self.requestUrl = api_url('admin/files');
+
+        /**
+         * Makes the request for get all files on the API.
+         *
+         * @return Angular promise
+         */
+        self.all = function ()
+        {
+            var deferredPromise = $q.defer();
+
+            $http.get(self.requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for get an specific file on the API.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.find = function (id)
+        {
+            var deferredPromise = $q.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            $http.get(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for store a newly created file on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.store = function (data)
+        {
+            var deferredPromise = $q.defer();
+            var requestConfig = {
+                headers: {'Content-Type': undefined}
+            };
+
+            $http.post(self.requestUrl, self.makeRequestableData(data), requestConfig).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for update file on the API.
+         *
+         * @param  object data
+         * @return Angular promise
+         */
+        self.update = function (data)
+        {
+            var deferredPromise = $q.defer();
+            var requestUrl = self.requestUrl + '/' + data.id;
+
+            $http.put(requestUrl, data).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes the request for delete file on the API.
+         *
+         * @param  number id
+         * @return Angular promise
+         */
+        self.destroy = function (id)
+        {
+            var deferredPromise = $q.defer();
+            var requestUrl = self.requestUrl + '/' + id;
+
+            $http.delete(requestUrl).then(
+                function (response)
+                {
+                    deferredPromise.resolve(response);
+                },
+                function (response)
+                {
+                    deferredPromise.reject(response);
+                }
+            );
+
+            return deferredPromise.promise;
+        };
+
+        /**
+         * Makes an form data requestable to the server.
+         *
+         * @param  object data
+         * @return FormData
+         */
+        self.makeRequestableData = function (data)
+        {
+            var formData = new FormData();
+
+            formData.append('disk', data.disk);
+            angular.forEach(data.files, function (file, key) {
+                formData.append('files[]', file);
+            });
+
+            return formData;
+        };
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Files List
+|--------------------------------------------------------------------------
+|
+*/
+
+filesModule.controller('FilesListController', [
+    '$scope', 'FilesService', 'ModalService',
+    function ($scope, FilesService, ModalService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * All files.
+         *
+         * @type array
+         */
+        self.files = [];
+
+        /**
+         * Files details view.
+         *
+         * @type string
+         */
+        self.detailsView = view('files-update.html');
+
+        /**
+         * File details controller
+         *
+         * @type string
+         */
+        self.detailsController = 'FilesUpdateController';
+
+        /**
+         * Send the request to get all files.
+         *
+         * @return void
+         */
+        self.getAll = function ()
+        {
+            FilesService.all().then(
+                function (response)
+                {
+                    self.files = response.data;
+                },
+                function (response)
+                {
+                    notify('Não foi possível obter os arquivos!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Show the file modal details.
+         *
+         * @param  object file
+         * @return void
+         */
+        self.showDetails = function (file)
+        {
+            var modalConfig = {
+                controller: self.detailsController,
+                templateUrl: self.detailsView,
+                inputs: {file: file}
+            };
+
+            ModalService.showModal(modalConfig).then(function (modal)
+            {
+                modal.element.modal('show');
+
+                modal.close.then(function (reason)
+                {
+                    // Reload files if the file was deleted
+                    if ( reason == 'deleted' ) {
+                        self.getAll();
+                    }
+                });
+            });
+        }
+
+        /**
+         * Checks if the file is an image.
+         *
+         * @param  object  file
+         * @return bool
+         */
+        self.isImage = function (file)
+        {
+            var imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp'];
+
+            return (imageExtensions.indexOf(file.extension) > -1);
+        }
+
+        self.getAll();
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Files Update
+|--------------------------------------------------------------------------
+|
+*/
+
+filesModule.controller('FilesUpdateController', [
+    '$scope', 'FilesService', 'file', 'close',
+    function ($scope, FilesService, file, close)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Requested file.
+         *
+         * @type object
+         */
+        self.file = file;
+
+        /**
+         * Send the request to the file update.
+         *
+         * @return void
+         */
+        self.update = function ()
+        {
+            self.file = self.removeEmptyData(self.file);
+
+            FilesService.update(self.file).then(
+                function (response)
+                {
+                    notify('Arquivo editado com sucesso!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível salvar as alterações do arquivo!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+
+        /**
+         * Send the request for the file delete.
+         *
+         * @return void
+         */
+        self.destroy = function ()
+        {
+            FilesService.destroy(self.file.id).then(
+                function (response)
+                {
+                    notify('Arquivo deletado com sucesso!', 'success');
+
+                    self.modalCloseReason('deleted');
+                },
+                function (response)
+                {
+                    notify('Não foi possível deletar o arquivo!', 'error');
+                }
+            );
+        };
+
+        /**
+         * Pass the reason to the modal close promise.
+         *
+         * @param  string reason
+         * @return void
+         */
+        self.modalCloseReason = function (reason)
+        {
+            close(reason);
+        }
+
+        /**
+         * Checks if the file is an image.
+         *
+         * @param  object  file
+         * @return bool
+         */
+        self.isImage = function (file)
+        {
+            var imageExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp'];
+
+            return (imageExtensions.indexOf(file.extension) > -1);
+        }
+
+        /**
+         * Removes empty keys from data object.
+         *
+         * @param  object data
+         * @return object
+         */
+        self.removeEmptyData = function (data)
+        {
+            if ( data instanceof Object ) {
+                for (key in data) {
+                    if ( ! data[key] ) delete data[key];
+                }
+            }
+
+            return data;
+        };
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Controller For Files Upload
+|--------------------------------------------------------------------------
+|
+*/
+
+filesModule.controller('FilesUploadController', [
+    '$scope', 'FilesService',
+    function ($scope, FilesService)
+    {
+        /**
+         * This controller scope.
+         *
+         * @type object
+         */
+        var self = $scope;
+
+        /**
+         * Files data.
+         *
+         * @type object
+         */
+        self.data = {};
+
+        /**
+         * Files disk.
+         *
+         * @type object
+         */
+        self.data.disk = 's3';
+
+        /**
+         * Files to be uploaded.
+         *
+         * @type object
+         */
+        self.data.files = [];
+
+        /**
+         * Send a request for store a newly created file.
+         *
+         * @return void
+         */
+        self.store = function ()
+        {
+            FilesService.store(self.data).then(
+                function (response)
+                {
+                    self.data.disk = 's3';
+
+                    notify('Os arquivos foram enviados para o upload!', 'success');
+                },
+                function (response)
+                {
+                    notify('Não foi possível enviar os arquivos para o upload!', 'error');
+                    show_messages(response.data, 'error');
+                }
+            );
+        };
+    }
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Directive For Multiple Files Upload
+|--------------------------------------------------------------------------
+|
+| This directive parses/apply the input files selected
+| to the parent scope model.
+|
+*/
+
+filesModule.directive('filesInput', [
+    '$parse',
+    function ($parse)
+    {
+        var self = this;
+
+        self.restrict = 'A';
+
+        self.link = function (scope, element, attributes, controller)
+        {
+            var model = $parse(attributes.filesInput);
+            var assign = model.assign;
+
+            // Binds the event listener
+            element.bind('change', function () {
+                var files = [];
+                var elementFiles = element[0].files;
+
+                angular.forEach(elementFiles, function (file, key) {
+                    files.push(file);
+                });
+
+                // Apply the files to the scope
+                scope.$apply(function () {
+                    assign(scope, files);
+                });
+            });
+        }
+
+        return self;
     }
 ]);
