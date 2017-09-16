@@ -1,0 +1,64 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Tags <small>Lista</small></h1>
+    <ol class="breadcrumb">
+        <li><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li class="active"><i class="fa fa-tags"></i> Tags</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-primary">
+                <div class="box-body">
+                    <table class="table table-bordered table-striped table-hover data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr data-ng-repeat="tag in tags">
+                                <td>
+                                    <a data-ui-sref="tags-update({id: tag.id})"
+                                        data-toggle="tooltip" data-placement="right" data-title="Editar Tag"
+                                    >{{ tag.name }}</a>
+                                </td>
+                                <td>{{ tag.description }}</td>
+                                <td>{{ tag.created_at }}</td>
+                                <td>
+                                    <a  data-ui-sref="tags-update({id: tag.id})" class="btn btn-sm btn-primary"
+                                        data-toggle="tooltip" data-placement="top" data-title="Editar Tag"
+                                    >
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <a href="javascript:undefined" class="btn btn-sm btn-success" target="_blank"
+                                        data-toggle="tooltip" data-placement="top" data-title="Abrir Tag"
+                                    >
+                                        <i class="fa fa-external-link"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div><!-- /.box-body -->
+            </div><!-- /.box -->
+        </div>
+    </div><!-- /.row -->
+
+</section><!-- /.content -->

@@ -1,0 +1,91 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Arquivos <small>Lista</small></h1>
+    <ol class="breadcrumb">
+        <li><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li class="active"><i class="fa fa-archive"></i> Arquivos</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <button class="btn btn-success"
+                        data-ng-click="getAll()"
+                    >
+                        <i class="fa fa-refresh"></i> Atualizar
+                    </button>
+                    <a data-ui-sref="files-upload" class="btn btn-primary">
+                        <i class="fa fa-upload"></i> Upar arquivos
+                    </a>
+                </div>
+
+                <div class="box-body">
+                    <table class="table table-bordered table-striped table-hover data-table">
+                        <thead>
+                            <tr>
+                                <th>Prévia</th>
+                                <th>Nome</th>
+                                <th>Extensão</th>
+                                <th>Disco</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr data-ng-repeat="file in files">
+                                <td>
+                                    <a class="file-preview" href="javascript:undefined"
+                                        data-ng-click="showDetails(file)"
+                                    >
+                                        <div data-ng-if="isImage(file)" class="thumbnail">
+                                            <img data-ng-src="{{ file.url }}" alt="{{ file.name }}" class="img-responsive">
+                                        </div>
+                                        <div data-ng-if="! isImage(file)" class="fallback">
+                                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                        </div>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="javascript:undefined"
+                                        data-ng-click="showDetails(file)"
+                                    >{{ file.name }}</a>
+                                </td>
+                                <td>{{ file.extension }}</td>
+                                <td>{{ file.disk | uppercase }}</td>
+                                <td>{{ file.created_at }}</td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary" href="javascript:undefined"
+                                        data-ng-click="showDetails(file)"
+                                    >
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <a href="{{ file.url }}" class="btn btn-sm btn-success" target="_blank"
+                                        data-toggle="tooltip" data-placement="top" data-title="Abrir Arquivo"
+                                    >
+                                        <i class="fa fa-external-link"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <th>Prévia</th>
+                                <th>Nome</th>
+                                <th>Extensão</th>
+                                <th>Disco</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div><!-- /.box-body -->
+            </div><!-- /.box -->
+        </div>
+    </div><!-- /.row -->
+</section><!-- /.content -->

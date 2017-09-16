@@ -1,0 +1,118 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Artigos <small>Cadastro</small></h1>
+    <ol class="breadcrumb">
+        <li><a data-ui-sref="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li><a data-ui-sref="articles-list"><i class="fa fa-pencil"></i> Artigos</a></li>
+        <li class="active">Cadastro</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+    <!-- form start -->
+    <form name="articleForm" role="form" data-ng-submit="store(); articleForm.$setUntouched(true); articleForm.$setPristine(true);" novalidate>
+        <div class="row">
+
+            <!-- Main -->
+            <div class="col-md-9">
+                <div class="box box-info">
+                    <div class="box-body">
+                       <div class="form-group" data-ng-class="{'has-error': articleForm.title.$invalid && articleForm.title.$touched}">
+                            <label for="title">Título</label>
+                            <input id="title" class="form-control" name="title" type="text"
+                                data-ng-model="article.title"
+                                data-ng-required="true"
+                                data-ng-maxlength="255"
+                            >
+
+                            <div class="help-block" data-ng-show="articleForm.$submitted || articleForm.title.$touched" data-ng-messages="articleForm.title.$error">
+                                <div data-ng-messages-include="validation-messages"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" data-ng-class="{'has-error': articleForm.description.$invalid && articleForm.description.$touched}">
+                            <label for="description">Descrição</label>
+                            <textarea id="description" class="form-control" name="description" rows="2"
+                                data-ng-model="article.description"
+                                data-ng-maxlength="255"
+                            ></textarea>
+
+                            <div class="help-block" data-ng-show="articleForm.$submitted || articleForm.description.$touched" data-ng-messages="articleForm.description.$error">
+                                <div data-ng-messages-include="validation-messages"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" data-ng-class="{'has-error': articleForm.content.$invalid && articleForm.content.$touched}">
+                            <label for="content">Conteúdo</label>
+                            <textarea id="content" class="form-control" name="content" rows="10"
+                                data-ng-model="article.content"
+                                data-ng-required="true"
+                            ></textarea>
+                        </div>
+                    </div><!-- /.box-body -->
+
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-primary" data-ng-disabled="articleForm.$invalid">
+                            <i class="fa fa-plus"></i> Cadastrar
+                        </button>
+                    </div>
+                </div><!-- /.box -->
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="box box-info">
+                    <div class="box-body">
+                        <div class="form-group" data-ng-class="{'has-error': articleForm.categories.$invalid && articleForm.categories.$touched}">
+                            <label for="categories">Categoria</label>
+                            <select id="categories" class="form-control" name="categories" multiple
+                                data-ng-model="article.categories"
+                                data-ng-required="true"
+                            >
+                                <option data-ng-repeat="categories in categories" value="{{ categories.id }}">{{ categories.name }}</option>
+                            </select>
+
+                            <div class="help-block" data-ng-show="articleForm.$submitted || articleForm.categories.$touched" data-ng-messages="articleForm.categories.$error">
+                                <div data-ng-messages-include="validation-messages"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" data-ng-class="{'has-error': articleForm.tags.$invalid && articleForm.tags.$touched}">
+                            <label for="tags">Tags</label> <small>(Opcional)</small>
+                            <select id="tags" class="form-control" name="tags" multiple
+                                data-ng-model="article.tags"
+                            >
+                                <option data-ng-repeat="tag in tags" value="{{ tag.id }}">{{ tag.name }}</option>
+                            </select>
+
+                            <div class="help-block" data-ng-show="articleForm.$submitted || articleForm.tags.$touched" data-ng-messages="articleForm.tags.$error">
+                                <div data-ng-messages-include="validation-messages"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" data-ng-class="{'has-error': articleForm.status.$invalid && articleForm.status.$touched}">
+                            <label>Status</label><br>
+                            <input id="active_status" name="status" type="radio" data-ng-value="1"
+                                data-ng-model="article.status"
+                                data-ng-required="true"
+                            >
+                            <label for="active_status">Ativo</label>
+
+                            <input id="inactive_status" name="status" type="radio" data-ng-value="0"
+                                data-ng-model="article.status"
+                                data-ng-required="true"
+                            >
+                            <label for="inactive_status">Inativo</label>
+
+                            <div class="help-block" data-ng-show="articleForm.$submitted || articleForm.status.$touched" data-ng-messages="articleForm.status.$error">
+                                <div data-ng-messages-include="validation-messages"></div>
+                            </div>
+                        </div>
+                    </div><!-- /.box-body -->
+                </div><!-- /.box -->
+            </div>
+        </div><!-- /.row -->
+    </form><!-- form end -->
+
+</section><!-- /.content -->

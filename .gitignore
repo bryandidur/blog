@@ -1,0 +1,4 @@
+/src/js/app/app.env.js
+/node_modules
+/vendor
+npm-debug.log
