@@ -1,0 +1,44 @@
+/*
+|----------------------------------------------
+| Page: Files List | File Details
+|----------------------------------------------
+|
+*/
+
+/* File preview */
+.file-preview {
+    width: 100px;
+    display: block;
+    text-align: center;
+
+    .thumbnail {
+        max-width: 100%;
+    }
+
+    .fallback {
+        font-size: 4em;
+    }
+}
+
+/* File details modal */
+.file-details-modal .modal-dialog {
+    width: 96%;
+    text-align: left;
+}
+.file-preview-box img,
+.file-preview-box .fa {
+    display: block;
+    margin: 0 auto;
+    font-size: 60px;
+    color: #555;
+    text-align: center;
+}
+.file-details-modal .file-details-box {
+    padding: 50px 15px;
+}
+.file-details-modal .modal-dialog a,
+.file-details-modal .modal-dialog label,
+.file-details-modal .modal-dialog input,
+.file-details-modal .modal-dialog textarea {
+    font-size: 12px;
+}

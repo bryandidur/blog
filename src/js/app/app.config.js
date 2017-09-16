@@ -123,6 +123,20 @@ appModule.config([
                 templateUrl: view('articles-update.html'),
                 controller: 'ArticlesUpdateController',
             },
+
+            // Files
+            'files-list': {
+                parent: 'root-dashboard',
+                url: '/files',
+                templateUrl: view('files-list.html'),
+                controller: 'FilesListController',
+            },
+            'files-upload': {
+                parent: 'root-dashboard',
+                url: '/files/upload',
+                templateUrl: view('files-upload.html'),
+                controller: 'FilesUploadController',
+            },
         };
 
         // Register routeStates

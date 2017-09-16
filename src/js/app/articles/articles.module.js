@@ -3,4 +3,4 @@
  *
  * @type object
  */
-var articlesModule = angular.module('articles', ['ngMessages', 'ui.router', 'categories', 'tags']);
+var articlesModule = angular.module('articles', ['ngMessages', 'ui.router', 'validation', 'categories', 'tags']);

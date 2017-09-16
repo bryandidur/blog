@@ -1,4 +1,5 @@
 {
+    "/assets/js/notifications.js": "/assets/js/notifications.js",
     "/assets/css/app.css": "/assets/css/app.css",
     "/assets/js/vendor.js": "/assets/js/vendor.js",
     "/assets/js/app.js": "/assets/js/app.js",
@@ -12,6 +13,9 @@
     "/views/categories-list.html": "/views/categories-list.html",
     "/views/categories-update.html": "/views/categories-update.html",
     "/views/dashboard.html": "/views/dashboard.html",
+    "/views/files-list.html": "/views/files-list.html",
+    "/views/files-update.html": "/views/files-update.html",
+    "/views/files-upload.html": "/views/files-upload.html",
     "/views/root-dashboard.html": "/views/root-dashboard.html",
     "/views/tags-create.html": "/views/tags-create.html",
     "/views/tags-list.html": "/views/tags-list.html",
