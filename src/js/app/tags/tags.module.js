@@ -3,4 +3,4 @@
  *
  * @type object
  */
-var tagsModule = angular.module('tags', ['ngMessages', 'ui.router']);
+var tagsModule = angular.module('tags', ['ngMessages', 'ui.router', 'validation']);

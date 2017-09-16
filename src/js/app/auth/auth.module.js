@@ -4,4 +4,4 @@
  * @type object
  */
 
-var authModule = angular.module('auth', ['ngMessages', 'ui.router']);
+var authModule = angular.module('auth', ['ngMessages', 'ui.router', 'validation']);

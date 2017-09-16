@@ -3,4 +3,4 @@
  *
  * @type object
  */
-var usersModule = angular.module('users', ['ngMessages', 'ui.router', 'auth']);
+var usersModule = angular.module('users', ['ngMessages', 'ui.router', 'auth', 'validation']);

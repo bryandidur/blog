@@ -21,7 +21,7 @@ mix.combine([
 
 mix.scripts([
     // Layout scripts
-    'src/js/layout/app.js',
+    'src/js/layout.js',
 
     // Main application module
     'src/js/app/app.env.js',

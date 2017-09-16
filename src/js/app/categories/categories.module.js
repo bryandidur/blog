@@ -3,4 +3,4 @@
  *
  * @type object
  */
-var categoriesModule = angular.module('categories', ['ngMessages', 'ui.router']);
+var categoriesModule = angular.module('categories', ['ngMessages', 'ui.router', 'validation']);

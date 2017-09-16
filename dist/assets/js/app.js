@@ -1184,7 +1184,7 @@ validationModule.directive('validatePasswordConfirmation',
  * @type object
  */
 
-var authModule = angular.module('auth', ['ngMessages', 'ui.router']);
+var authModule = angular.module('auth', ['ngMessages', 'ui.router', 'validation']);
 
 /*
 |--------------------------------------------------------------------------
@@ -1997,7 +1997,7 @@ dashboardModule.controller('DashboardController', [
  *
  * @type object
  */
-var usersModule = angular.module('users', ['ngMessages', 'ui.router', 'auth']);
+var usersModule = angular.module('users', ['ngMessages', 'ui.router', 'auth', 'validation']);
 
 /*
 |--------------------------------------------------------------------------
@@ -2405,7 +2405,7 @@ usersModule.controller('UsersRegisterController', [
  *
  * @type object
  */
-var tagsModule = angular.module('tags', ['ngMessages', 'ui.router']);
+var tagsModule = angular.module('tags', ['ngMessages', 'ui.router', 'validation']);
 
 /*
 |--------------------------------------------------------------------------
@@ -2798,7 +2798,7 @@ tagsModule.controller('TagsUpdateController', [
  *
  * @type object
  */
-var categoriesModule = angular.module('categories', ['ngMessages', 'ui.router']);
+var categoriesModule = angular.module('categories', ['ngMessages', 'ui.router', 'validation']);
 
 /*
 |--------------------------------------------------------------------------
@@ -3191,7 +3191,7 @@ categoriesModule.controller('CategoriesUpdateController', [
  *
  * @type object
  */
-var articlesModule = angular.module('articles', ['ngMessages', 'ui.router', 'categories', 'tags']);
+var articlesModule = angular.module('articles', ['ngMessages', 'ui.router', 'validation', 'categories', 'tags']);
 
 /*
 |--------------------------------------------------------------------------
